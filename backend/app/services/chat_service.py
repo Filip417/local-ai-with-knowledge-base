@@ -1,12 +1,16 @@
-from typing import Dict
+from typing import List, Dict
 
-from ..models.query import Query
+from ..models.message import Message, Role
 
 
-async def handle_query(q: Query) -> Dict[str, str]:
+async def handle_query(messages: List[Message]) -> Dict[str, str]:
     """
-    Very small placeholder for chat processing.
+    Very small placeholder for chat processing using message history.
     """
-    text = getattr(q, "text", str(q))
-    answer = f"Echo: {text}"
-    return {"query": text, "answer": answer}
+    if not messages:
+        return {"query": "", "answer": "No messages received"}
+
+    # Example behavior: echo the last message's text
+    last_text = messages[-1].text
+    answer = f"Echo: {last_text}"
+    return {"query": last_text, "answer": answer}

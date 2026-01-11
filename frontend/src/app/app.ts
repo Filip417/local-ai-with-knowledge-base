@@ -1,11 +1,11 @@
 import { Component, effect, ElementRef, OnChanges, signal, SimpleChanges, ViewChild } from '@angular/core';
+import { finalize } from 'rxjs/operators';
 import { RouterOutlet } from '@angular/router';
 import { ChatHeader } from './components/chat-header/chat-header';
 import { ChatMessages } from './components/chat-messages/chat-messages';
 import { ChatInput } from './components/chat-input/chat-input';
 import { ChatService } from './services/chat.service';
-
-type Message = { role: 'user' | 'assistant'; text: string };
+import { Message, Role } from './models/message';
 
 @Component({
   selector: 'app-root',
@@ -16,6 +16,7 @@ type Message = { role: 'user' | 'assistant'; text: string };
 })
 export class App {
   messages = signal<Message[]>([]);
+  isSending = signal(false);
 
   constructor(private chatService: ChatService) {
     effect(() => {
@@ -24,23 +25,36 @@ export class App {
     });
   }
 
+  private addMessage(message: Message) {
+    this.messages.update(arr => [...arr, message]);
+  }
+
   sendPrompt(msg: string): void {
     const text = (msg || '').trim();
     if (!text) return;
 
     // add user message
-    this.messages.update(arr => [...arr, { role: 'user', text }]);
+    const userMessage: Message = { role: Role.User, text, timestamp: new Date().toISOString() };
+    this.addMessage(userMessage);
+    this.isSending.set(true);
 
-    // send to backend
-    this.chatService.sendMessage(text).subscribe({
-      next: (res: any) => {
-        const answer = res?.answer ?? '';
-        this.messages.update(arr => [...arr, { role: 'assistant', text: answer }]);
-      },
-      error: () => {
-        this.messages.update(arr => [...arr, { role: 'assistant', text: 'Something went wrong. Please try again.' }]);
-      }
-    });
+    // send to backend (send the full conversation)
+    const messagesPayload = this.messages();
+    this.chatService.sendMessages(messagesPayload)
+      .pipe(finalize(() => this.isSending.set(false)))
+      .subscribe({
+        next: (res: { answer: string }) => {
+          const answer = res?.answer ?? 'Something went wrong. Please try again.';
+          const assistantMessage: Message = { role: Role.Assistant, text: answer, timestamp: new Date().toISOString() };
+          this.addMessage(assistantMessage);
+        },
+
+        error: (err) => {
+          const assistantMessage: Message = { role: Role.Assistant, text: 'Something went wrong. Please try again.', timestamp: new Date().toISOString() };
+          this.addMessage(assistantMessage);
+          console.error('sendMessage error', err);
+        }
+      });
   }
 
   @ViewChild('chatContainer') chatContainer?: ElementRef<HTMLElement>;

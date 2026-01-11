@@ -1,16 +1,16 @@
 from fastapi import APIRouter, HTTPException
-from ..models.query import Query  # relative import within package
+from ..models.message import ChatRequest
 from ..services.chat_service import handle_query
 
 router = APIRouter()
 
 @router.post("/", response_model=dict)
-async def chat_endpoint(q: Query):
+async def chat_endpoint(request: ChatRequest):
     """
-    Minimal example — delegate to service layer for real logic.
-    POST /api/v1/chat/
+    POST /api/v1/chat/ expects { "messages": [ ... ] }
     """
-    result = await handle_query(q)
+    messages = request.messages
+    result = await handle_query(messages)
     if not result:
-        raise HTTPException(500, "processing failed")
+        raise HTTPException(status_code=500, detail="processing failed")
     return result

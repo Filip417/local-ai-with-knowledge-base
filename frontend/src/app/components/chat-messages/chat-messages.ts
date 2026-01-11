@@ -1,7 +1,6 @@
 import { Component, Input, ElementRef, ViewChild, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
-
-type Message = { role: 'user' | 'assistant'; text: string };
+import { Message } from '../../models/message';
 
 @Component({
   selector: 'app-chat-messages',
