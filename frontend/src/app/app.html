@@ -1,1 +1,5 @@
-<app-chat></app-chat>
+<div #chatContainer class="chat-container" role="log" aria-live="polite">
+  <app-chat-header></app-chat-header>
+  <app-chat-messages [messages]="messages()"></app-chat-messages>
+  <app-chat-input (send)="sendPrompt($event)"></app-chat-input>
+</div>

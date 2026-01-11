@@ -1,11 +1,28 @@
-import { Component } from '@angular/core';
+import { Component, EventEmitter, Output } from '@angular/core';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-chat-input',
-  imports: [],
+  standalone: true,
+  imports: [CommonModule],
   templateUrl: './chat-input.html',
-  styleUrl: './chat-input.css',
+  styleUrls: ['./chat-input.css'],
 })
 export class ChatInput {
+  @Output() send = new EventEmitter<string>();
 
+  sendPrompt(msg: string): void {
+    const text = (msg || '').trim();
+    if (!text) return;
+    this.send.emit(text);
+  }
+
+  onEnter(event: KeyboardEvent, input: HTMLTextAreaElement) {
+    if (event.key === 'Enter' && !event.shiftKey) {
+      event.preventDefault();
+      const val = input.value;
+      input.value = '';
+      this.sendPrompt(val);
+    }
+  }
 }

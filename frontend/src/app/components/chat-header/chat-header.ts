@@ -1,11 +1,12 @@
 import { Component } from '@angular/core';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-chat-header',
-  imports: [],
+  standalone: true,
+  imports: [CommonModule],
   templateUrl: './chat-header.html',
-  styleUrl: './chat-header.css',
+  styleUrls: ['./chat-header.css'],
 })
-export class ChatHeader {
+export class ChatHeader {}
 
-}

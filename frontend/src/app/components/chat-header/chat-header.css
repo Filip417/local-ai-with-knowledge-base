@@ -1,0 +1,14 @@
+.chat-header {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  font-weight: 600;
+  font-size: 16px;
+  padding: 8px 12px;
+  color: #e6eef8;
+  background: #212121;
+  border-bottom: 1px solid #323232d9;
+  z-index: 20;
+  overflow-x: hidden
+}
