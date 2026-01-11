@@ -1,10 +1,17 @@
-<div class="chat-container">
-    <h1>Chat</h1>
-    <textarea #msgInput placeholder="Ask something..."></textarea>
-    <button (click)="sendPrompt(msgInput.value)">Send</button>
+<div class="chat-container chat-wrap">
+  <div class="chat-header">Chat</div>
 
-    <div class="response" *ngIf="response">
-    <h3>Response:</h3>
-    <p>{{ response() }}</p>
+  <div class="messages" #messagesContainer>
+    <div class="message" *ngFor="let m of messages()" [ngClass]="m.role">
+      <div class="bubble">{{ m.text }}</div>
     </div>
+  </div>
+
+  <div class="composer">
+    <textarea #msgInput placeholder="Ask something..." (keydown.enter)="onEnter($any($event), msgInput)" aria-label="Message"></textarea>
+    <button aria-label="Send" title="Send" (click)="sendPrompt(msgInput.value); msgInput.value=''" class="send-btn">
+      <!-- Paper plane icon -->
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 2L11 13"></path><path d="M22 2L15 22l-4-9-9-4 20-7z"></path></svg>
+    </button>
+  </div>
 </div>
