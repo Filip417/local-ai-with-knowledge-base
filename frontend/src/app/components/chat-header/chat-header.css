@@ -6,9 +6,9 @@
   font-weight: 600;
   font-size: 16px;
   padding: 8px 12px;
-  color: #e6eef8;
-  background: #212121;
-  border-bottom: 1px solid #323232d9;
+  color: var(--color-text);
+  background: var(--color-bg);
+  border-bottom: 1px solid var(--color-border);
   z-index: 20;
   overflow-x: hidden
-}
+} 

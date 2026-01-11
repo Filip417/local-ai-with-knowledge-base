@@ -1,1 +1,10 @@
 /* You can add global styles to this file, and also import other style files */
+:root {
+  --color-bg: #1e1e1e;
+  --color-surface: #303030;
+  --color-border: #323232d9;
+  --color-text: #e6eef8;
+  --color-text-muted: #9aaab7;
+  --color-accent-gradient-start: #07203a;
+  --color-accent-gradient-end: #003a6b;
+}

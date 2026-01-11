@@ -6,12 +6,12 @@
   margin: 0;
   display: flex;
   flex-direction: column;
-  background: #1e1e1e; /* dark grey */
-  color: #e6eef8;
+  background: var(--color-bg);
+  color: var(--color-text);
   border-radius: 0;
   padding: 0px;
   box-shadow: none;
   font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   overflow-y: auto;
   overflow-x: hidden;
-}
+} 
