@@ -10,6 +10,7 @@ import { CommonModule } from '@angular/common';
 })
 export class ChatInput {
   @Output() send = new EventEmitter<string>();
+  @Output() clear = new EventEmitter<void>();
 
   sendPrompt(msg: string): void {
     const text = (msg || '').trim();
@@ -24,5 +25,10 @@ export class ChatInput {
       input.value = '';
       this.sendPrompt(val);
     }
+  }
+
+  clearChatHistory() {
+    // emit an event to the parent to clear stored messages and UI
+    this.clear.emit();
   }
 }

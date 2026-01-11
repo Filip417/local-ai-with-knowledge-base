@@ -57,6 +57,11 @@ export class App {
       });
   }
 
+  clearChatHistory(): void {
+    // reset messages list (clears UI and any in-memory conversation)
+    this.messages.set([]);
+  }
+
   @ViewChild('chatContainer') chatContainer?: ElementRef<HTMLElement>;
   private scrollChatContainerToBottom() {
     this.chatContainer?.nativeElement.scrollTo({ top: this.chatContainer.nativeElement.scrollHeight });
