@@ -1,4 +1,4 @@
-import { Component, Input, ElementRef, ViewChild, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Message } from '../../models/message';
 
