@@ -5,7 +5,7 @@
   gap: 12px;
   padding: 16px 8px;
   scroll-behavior: smooth;
-  padding-bottom: 96px; /* room for sticky composer */
+  padding-bottom: 120px; /* room for sticky composer */
   padding-top: 48px; /* room for sticky composer */
   width: 100%;
   max-width: 768px;
