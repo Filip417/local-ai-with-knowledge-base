@@ -1,10 +1,10 @@
-from typing import List, Dict, cast, Any
-from ..models.message import Message, Role
+from typing import List, Dict, cast, Any, AsyncGenerator
+from ..models.message import Message
 import asyncio
 from llama_cpp import Llama
 from concurrent.futures import ThreadPoolExecutor
 from llama_cpp import ChatCompletionRequestMessage
-
+from functools import partial
 
 CONTEXT_LIMIT = 4096
 MAX_OUTPUT_TOKENS = 2000
@@ -18,32 +18,40 @@ executor = ThreadPoolExecutor(max_workers=1) # 1 thread worker for LLM interacti
 model_lock = asyncio.Lock()
 
 
-async def _generate(messages: List[Message], max_tokens: int = MAX_OUTPUT_TOKENS) -> str:
+async def _generate_stream(
+        messages: List[Message],
+        max_tokens: int = MAX_OUTPUT_TOKENS) -> AsyncGenerator[str, None]:
+    
     formatted_messages = get_formatted_messages(messages, max_tokens)
-    async with model_lock:
-        loop = asyncio.get_running_loop()
+    loop = asyncio.get_running_loop()
+    
+    # Get the streaming iterator from llama-cpp in the thread pool
+    sync_func = partial(
+        llm.create_chat_completion,
+        messages=cast(List[ChatCompletionRequestMessage], formatted_messages),
+        max_tokens=max_tokens,
+        stream=True
+    )
+    
+    # This returns the iterator itself
+    stream_iterator = await loop.run_in_executor(executor, sync_func)
 
-        def sync_call():
-            return llm.create_chat_completion(
-                messages=cast(List[ChatCompletionRequestMessage], formatted_messages),
-                max_tokens=max_tokens,
-                stream=False
-            )
-
-        raw_resp = await loop.run_in_executor(executor, sync_call)
-        resp = cast(Dict[str, Any], raw_resp)
-        return resp['choices'][0]['message']['content'].strip()
+    # Yield chunks as they arrive
+    for chunk in stream_iterator:
+        chunk_dict = cast(Dict[str, Any], chunk)
+        content = chunk_dict['choices'][0].get('delta', {}).get('content')
+        if content:
+            yield content
+            await asyncio.sleep(0)
 
 
-async def handle_query(messages: List[Message]) -> Dict[str, str]:
-    """
-    Handler for messages query.
-    """
+async def handle_query_stream(messages: List[Message]):
     if not messages:
-        return {"query": "", "answer": "No messages received"}
-    prompt = messages[-1].text
-    answer = await _generate(messages)
-    return {"query": prompt, "answer": answer}
+        yield "No messages received"
+        return
+
+    async for chunk in _generate_stream(messages):
+        yield chunk
 
 
 def get_formatted_messages(messages : List[Message], max_tokens : int) -> List[Dict[str, str]]:
