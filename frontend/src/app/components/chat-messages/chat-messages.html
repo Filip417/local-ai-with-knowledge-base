@@ -1,5 +1,7 @@
 <div class="messages" #messagesContainer>
   <div class="message" *ngFor="let m of messages" [ngClass]="m.role">
-    <div class="bubble">{{ m.text }}</div>
+    <div class="bubble">
+      <markdown [data]="m.text"></markdown>
+    </div>
   </div>
 </div>
