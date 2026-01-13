@@ -69,7 +69,7 @@
 
 /* If you want to customize code blocks or lists: */
 .bubble ::ng-deep markdown pre {
-  background-color: var(--color-text);
+  background-color: var(--color-surface);
   padding: 10px;
   border-radius: 4px;
 }
