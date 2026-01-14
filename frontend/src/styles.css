@@ -7,4 +7,10 @@
   --color-text-muted: #9aaab7;
   --color-accent-gradient-start: #07203a;
   --color-accent-gradient-end: #003a6b;
+  --chat-width: 768px;
+  font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+body {
+  margin: 0px;
 }

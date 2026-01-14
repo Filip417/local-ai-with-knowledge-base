@@ -1,17 +1,19 @@
-.chat-container {
-  position: fixed;
-  inset: 0;
-  width: 100vw;
-  height: 100vh;
-  margin: 0;
+.column-container {
   display: flex;
-  flex-direction: column;
-  background: var(--color-bg);
-  color: var(--color-text);
-  border-radius: 0;
-  padding: 0px;
-  box-shadow: none;
-  font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  overflow-y: auto;
-  overflow-x: hidden;
-} 
+  height: calc(100vh - 86px); /* TODO fix it*/
+  gap: 10px;
+  padding: 10px;
+  background-color: var(--color-surface);
+}
+
+.left-column {
+  width: 25%;
+}
+
+.center-column {
+  width: 50%;
+}
+
+.right-column {
+  width: 25%;
+}

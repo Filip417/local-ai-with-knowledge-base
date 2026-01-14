@@ -1,4 +1,4 @@
-<div class="messages" #messagesContainer>
+<div class="chat-messages" #messagesContainer>
   
   <ng-container *ngIf="messages.length > 0; else welcomeState">
     <div class="message" *ngFor="let m of messages" [ngClass]="m.role">

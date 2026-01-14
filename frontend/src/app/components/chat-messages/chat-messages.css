@@ -1,16 +1,17 @@
-.messages {
-  flex: 1;
+.chat-messages {
   display: flex;
+  flex: 1 1 auto; /* allow this area to grow/shrink to fill remaining space */
+  min-height: 0; /* needed so the flex child can properly scroll */
   flex-direction: column;
   gap: 12px;
   padding: 16px 8px;
   scroll-behavior: smooth;
-  padding-bottom: 120px; /* room for sticky composer */
-  padding-top: 48px; /* room for sticky composer */
-  width: 100%;
-  max-width: 768px;
+  max-width: var(--chat-width);
   margin: 0 auto; /* center messages column */
-} 
+  overflow-y: auto;
+  box-sizing: border-box;
+  max-height: calc(100vh - 250px);
+}
 
 .message {
   display: flex;

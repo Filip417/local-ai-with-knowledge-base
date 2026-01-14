@@ -1,4 +1,4 @@
-<div class="composer">
+<div class="chat-input">
   <textarea #msgInput (input)="0" placeholder="Ask something..." (keydown.enter)="onEnter($any($event), msgInput)" aria-label="Message"></textarea>
   <div class="btn-div">
   <button aria-label="Send" title="Send" [disabled]="!msgInput.value.trim()" (click)="sendPrompt(msgInput.value); msgInput.value='';" class="send-btn">

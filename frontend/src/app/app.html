@@ -1,7 +1,16 @@
-<div #chatContainer class="chat-container" role="log" aria-live="polite">
-  <app-chat-header></app-chat-header>
-  <app-chat-messages [messages]="messages()"></app-chat-messages>
-  <app-chat-input (send)="sendPrompt($event)" (clear)="clearChatHistory()"></app-chat-input>
+
+<app-header></app-header>
+
+<div class="column-container">
+  <div class="left-column">
+    <app-chat></app-chat>
+  </div>
+  <div class="center-column">
+    <app-chat></app-chat>
+  </div>
+  <div class="right-column">
+    <app-chat></app-chat>
+  </div>
 </div>
 
 <router-outlet></router-outlet>
