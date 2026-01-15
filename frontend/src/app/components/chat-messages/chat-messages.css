@@ -1,16 +1,13 @@
 .chat-messages {
   display: flex;
-  flex: 1 1 auto; /* allow this area to grow/shrink to fill remaining space */
-  min-height: 0; /* needed so the flex child can properly scroll */
   flex-direction: column;
   gap: 12px;
-  padding: 16px 8px;
+  padding: 12px;
   scroll-behavior: smooth;
   max-width: var(--chat-width);
-  margin: 0 auto; /* center messages column */
+  margin: 0 auto;
   overflow-y: auto;
-  box-sizing: border-box;
-  max-height: calc(100vh - 250px);
+  max-height: calc(100vh - var(--header-height) - var(--input-height) - 11 * var(--spacing));
 }
 
 .message {

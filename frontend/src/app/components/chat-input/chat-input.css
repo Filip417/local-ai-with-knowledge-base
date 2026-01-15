@@ -5,15 +5,14 @@
   z-index: 20;
   max-width: var(--chat-width);
   margin: 0 auto;
+  height: var(--input-height);
 }
 
 :host { display: block; } 
 
 textarea {
   flex: 1;
-  min-height: 56px;
-  max-height: 200px;
-  resize:none;
+  resize: none;
   padding: 10px 12px;
   background: var(--color-surface);
   color: var(--color-text);
@@ -21,6 +20,7 @@ textarea {
   border-radius: 8px;
   outline: none;
   font-size: 14px;
+  font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
 
 textarea::placeholder {

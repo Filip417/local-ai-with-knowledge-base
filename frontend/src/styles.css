@@ -8,9 +8,12 @@
   --color-accent-gradient-start: #07203a;
   --color-accent-gradient-end: #003a6b;
   --chat-width: 768px;
-  font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --header-height: 30px;
+  --input-height: 90px;
+  --spacing: 12px;
 }
 
 body {
+  font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   margin: 0px;
 }

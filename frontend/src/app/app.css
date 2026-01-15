@@ -1,19 +1,18 @@
-.column-container {
+:host {
   display: flex;
-  height: calc(100vh - 86px); /* TODO fix it*/
+  flex-direction: column;
+  height: 100vh;
+  background: var(--color-bg);
+}
+
+.column-container {
+  display: grid;
+  grid-template-columns: 1fr 2fr 1fr;
   gap: 10px;
   padding: 10px;
   background-color: var(--color-surface);
-}
-
-.left-column {
-  width: 25%;
-}
-
-.center-column {
-  width: 50%;
-}
-
-.right-column {
-  width: 25%;
+  flex: 1;
+  min-height: 0;
+  grid-auto-rows: minmax(0, 1fr);
+  max-height: 100%;
 }
