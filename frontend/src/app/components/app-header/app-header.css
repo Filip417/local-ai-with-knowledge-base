@@ -14,8 +14,7 @@
 
 .app-title {
   margin: 0;
-  font-size: 1rem;
-  font-weight: 600;
+  font: 600 1rem;
 }
 
 .settings-btn {

@@ -49,21 +49,17 @@ textarea::placeholder {
 .btn-div button svg { width: 18px; height: 18px; display: block; }
 
 .clear-btn {
-  background: linear-gradient(180deg,var(--color-surface) 0%, var(--color-surface) 100%);
+  background: var(--color-surface);
 }
 
 .send-btn {
-  background: linear-gradient(180deg,var(--color-accent-gradient-start) 0%, var(--color-accent-gradient-end) 100%);
-} 
+  background: linear-gradient(180deg, var(--color-accent-gradient-start) 0%, var(--color-accent-gradient-end) 100%);
+}
 
-.send-btn:active { transform: translateY(1px); }
+button:active { transform: translateY(1px); }
 
 .send-btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
   filter: grayscale(1);
 }
-
-button:active { transform: translateY(1px); }
-
-button:active { transform: translateY(1px); }
