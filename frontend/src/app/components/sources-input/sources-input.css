@@ -74,5 +74,6 @@ button svg {
 }
 
 .clear-btn:hover {
-  color: var(--color-text);
+  background: var(--color-delete);
+  border-color: var(--color-delete);
 }

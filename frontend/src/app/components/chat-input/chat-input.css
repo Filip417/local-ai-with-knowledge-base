@@ -32,26 +32,31 @@ textarea::placeholder {
     gap: var(--spacing);
 }
 
-.btn-div button {
-  width: calc(0.5 * var(--input-height) - 0.5 * var(--spacing));
-  height:  calc(0.5 * var(--input-height) - 0.5 * var(--spacing));
-  padding: 0;
-  color: var(--color-text);
-  border: none;
+.btn-div button svg { width: 18px; height: 18px; display: block; }
+
+button {
+  padding: 8px 12px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
   border-radius: 8px;
   cursor: pointer;
+  transition: all 0.2s ease;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-.btn-div button svg { width: 18px; height: 18px; display: block; }
-
 .clear-btn {
-  background: var(--color-surface);
+  color: var(--color-text-muted);
+}
+
+.clear-btn:hover {
+  background: var(--color-delete);
+  border-color: var(--color-delete);
 }
 
 .send-btn {
+  color: var(--color-text);
   background: linear-gradient(180deg, var(--color-accent-gradient-start) 0%, var(--color-accent-gradient-end) 100%);
 }
 
