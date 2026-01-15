@@ -5,7 +5,7 @@ from ..models.message import ChatRequest
 
 router = APIRouter()
 
-@router.post("/")
+@router.post("/chat")
 async def chat_endpoint(request: ChatRequest):
     """
     POST /api/v1/chat/ expects { "messages": [ ... ] }

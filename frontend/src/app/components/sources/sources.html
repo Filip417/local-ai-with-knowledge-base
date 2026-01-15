@@ -1,0 +1,5 @@
+<div #sourcesContainer class="sources" role="region" aria-label="Sources management">
+  <app-sources-header></app-sources-header>
+  <app-sources-list [sources]="sources()"></app-sources-list>
+  <app-sources-input (upload)="uploadFile($event)" (clear)="clearSources()"></app-sources-input>
+</div>

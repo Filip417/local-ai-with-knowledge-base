@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from .api.chat import router as chat_router
-from .api.vector_db import router as vector_db_router
+from .api.sources import router as vector_db_router
 from contextlib import asynccontextmanager
 
 # Optional startup/shutdown events
@@ -23,8 +23,8 @@ app.add_middleware(
 )
 
 # Mount routers
-app.include_router(chat_router, prefix="/api/v1/chat", tags=["chat"])
-app.include_router(vector_db_router, prefix="/api/v1/vector_db", tags=["vector_db"])
+app.include_router(chat_router, prefix="/api/v1", tags=["chat"])
+app.include_router(vector_db_router, prefix="/api/v1", tags=["vector_db"])
 
 if __name__ == "__main__":
     import uvicorn

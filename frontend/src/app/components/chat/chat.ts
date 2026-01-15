@@ -28,7 +28,7 @@ export class Chat {
   }
 
   private abortController: AbortController | null = null;
-  private readonly ENDPOINT_URL = 'http://localhost:8000/api/v1/chat/';
+  private readonly ENDPOINT_URL = 'http://localhost:8000/api/v1/chat';
 
   async sendPrompt(msg: string) {
     const text = msg.trim();

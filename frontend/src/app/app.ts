@@ -2,11 +2,12 @@ import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { Chat } from './components/chat/chat';
 import { AppHeader } from './components/app-header/app-header';
+import { Sources } from './components/sources/sources';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, Chat, AppHeader],
+  imports: [RouterOutlet, Chat, Sources, AppHeader],
   templateUrl: './app.html',
   styleUrls: ['./app.css']
 })

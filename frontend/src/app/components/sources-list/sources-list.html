@@ -1,0 +1,16 @@
+<div class="sources-list" role="list">
+  
+  <ng-container *ngIf="sources.length > 0; else emptyState">
+    <div class="source-item" *ngFor="let source of sources" role="listitem">
+      <span class="source-name">{{ source }}</span>
+    </div>
+  </ng-container>
+
+  <ng-template #emptyState>
+    <div class="empty-container">
+      <h3>No sources yet</h3>
+      <p>Upload files below to add them to your knowledge base.</p>
+    </div>
+  </ng-template>
+
+</div>
