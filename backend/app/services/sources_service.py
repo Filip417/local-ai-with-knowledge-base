@@ -93,3 +93,41 @@ def upload_file_to_vector_db(file_path: str, file_extension: str):
             return False
     return False
 
+
+def delete_file_from_disk(filename: str):
+    """Delete a file from the backend/data directory."""
+    try:
+        data_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "data"))
+        file_path = os.path.join(data_dir, os.path.basename(filename))
+        
+        if os.path.exists(file_path):
+            os.remove(file_path)
+        return True
+    except Exception as e:
+        print(f"Error deleting file from disk: {e}")
+        return False
+
+
+def delete_file_from_vector_db(filename: str):
+    """Delete documents associated with a file from the vector database."""
+    try:
+        data_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "data"))
+        file_path = os.path.join(data_dir, os.path.basename(filename))
+        
+        # Read the file content to identify documents to delete
+        if os.path.exists(file_path):
+            with open(file_path, "r", encoding="utf-8", errors="ignore") as f:
+                text_content = f.read()
+            
+            collection = chroma_client.get_or_create_collection(name=VECTOR_DB_COLLECTION_NAME)
+            # Query to find documents matching this file's content
+            results = collection.query(query_texts=[text_content], n_results=1)
+            
+            # Delete the matching documents
+            if results and results.get("ids") and len(results["ids"]) > 0:
+                collection.delete(ids=results["ids"][0])
+
+        return True
+    except Exception as e:
+        print(f"Error deleting file from vector db: {e}")
+        return False

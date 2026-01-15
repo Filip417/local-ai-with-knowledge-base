@@ -10,7 +10,6 @@ import { CommonModule } from '@angular/common';
 })
 export class SourcesInput {
   @Output() upload = new EventEmitter<File>();
-  @Output() clear = new EventEmitter<void>();
 
   onFileSelected(event: Event) {
     const input = event.target as HTMLInputElement;
@@ -22,7 +21,4 @@ export class SourcesInput {
     }
   }
 
-  clearSources() {
-    this.clear.emit();
-  }
 }

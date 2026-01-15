@@ -12,6 +12,7 @@ import { FormsModule } from '@angular/forms';
 export class SourcesList {
   @Input() sources: string[] = [];
   @Output() deleteSource = new EventEmitter<string>();
+  @Output() clear = new EventEmitter<void>();
   
   selectedSources = new Set<string>();
   selectAll = false;
@@ -46,4 +47,19 @@ export class SourcesList {
     this.selectedSources.delete(source);
     this.updateSelectAllState();
   }
+
+  deleteSelected(event: Event) {
+    event.stopPropagation();
+    const sourcesToDelete = Array.from(this.selectedSources);
+    sourcesToDelete.forEach(source => {
+      this.deleteSource.emit(source);
+    });
+    this.selectedSources.clear();
+    this.selectAll = false;
+  }
+
+    clearSources() {
+    this.clear.emit();
+  }
+
 }

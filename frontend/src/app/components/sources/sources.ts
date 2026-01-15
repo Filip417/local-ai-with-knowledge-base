@@ -15,8 +15,9 @@ export class Sources {
   isUploading = signal(false);
   @ViewChild('sourcesContainer') sourcesContainer?: ElementRef<HTMLElement>;
 
-  private readonly ENDPOINT_URL = 'http://localhost:8000/api/v1/upload-source';
-  private readonly CLEAR_ENDPOINT_URL = 'http://localhost:8000/api/v1/clear-sources-collection';
+  private readonly ENDPOINT_URL = 'http://localhost:8000/api/v1/file';
+  private readonly CLEAR_ENDPOINT_URL = 'http://localhost:8000/api/v1/files';
+  private readonly DELETE_FILE_ENDPOINT_URL = 'http://localhost:8000/api/v1/file';
 
   async uploadFile(file: File) {
     if (this.isUploading() || !file) return;
@@ -49,11 +50,27 @@ export class Sources {
     this.sources.update(arr => [...arr, source]);
   }
 
+  async deleteFile(filename: string) {
+    try {
+      const response = await fetch(`${this.DELETE_FILE_ENDPOINT_URL}?filename=${encodeURIComponent(filename)}`, {
+        method: 'DELETE'
+      });
+
+      if (response.ok) {
+        this.sources.update(arr => arr.filter(s => s !== filename));
+      } else {
+        console.error('Delete failed:', response.statusText);
+      }
+    } catch (error) {
+      console.error('Error deleting file:', error);
+    }
+  }
+
   async clearSources() {
     this.sources.set([]);
     try {
       const response = await fetch(this.CLEAR_ENDPOINT_URL, {
-        method: 'POST'
+        method: 'DELETE'
       });
       if (!response.ok) {
         console.error('Clear sources failed:', response.statusText);
