@@ -1,8 +1,8 @@
 .chat-input {
   display: flex;
   gap: 8px;
-  padding: 12px;
-  z-index: 20;
+  padding: var(--spacing);
+  z-index: 10;
   max-width: var(--chat-width);
   margin: 0 auto;
   height: var(--input-height);
@@ -13,13 +13,12 @@
 textarea {
   flex: 1;
   resize: none;
-  padding: 10px 12px;
+  padding: var(--spacing);
   background: var(--color-surface);
   color: var(--color-text);
   border: none;
   border-radius: 8px;
   outline: none;
-  font-size: 14px;
   font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
 
@@ -30,12 +29,12 @@ textarea::placeholder {
 .btn-div{
     display: flex;
     flex-direction: column;
-    gap: 5px;
+    gap: var(--spacing);
 }
 
 .btn-div button {
-  width: 40px;
-  height: 40px;
+  width: calc(0.5 * var(--input-height) - 0.5 * var(--spacing));
+  height:  calc(0.5 * var(--input-height) - 0.5 * var(--spacing));
   padding: 0;
   color: var(--color-text);
   border: none;
