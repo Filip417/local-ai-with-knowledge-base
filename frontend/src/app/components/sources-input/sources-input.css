@@ -35,6 +35,12 @@
   background: var(--color-surface-hover);
 }
 
+.file-input-label.drag-over {
+  border-color: var(--color-accent);
+  background: var(--color-surface-hover);
+  box-shadow: 0 0 0 2px var(--color-accent); /* subtle focus ring on drag */
+}
+
 .file-input-label svg {
   width: 20px;
   height: 20px;
