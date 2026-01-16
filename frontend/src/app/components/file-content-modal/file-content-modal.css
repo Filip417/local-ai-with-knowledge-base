@@ -130,17 +130,11 @@
 
 .modal-footer {
   display: flex;
-  justify-content: space-between;
+  justify-content: end;
   align-items: center;
   padding: 15px 20px;
   border-top: 1px solid var(--color-surface);
   flex-shrink: 0;
-}
-
-.file-size {
-  font-size: 13px;
-  color: var(--color-text-muted);
-  font-weight: 500;
 }
 
 .close-button {

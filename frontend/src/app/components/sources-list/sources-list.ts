@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { FileModel } from '../../models/file';
@@ -11,8 +11,9 @@ import { FileContentModal } from '../file-content-modal/file-content-modal';
   templateUrl: './sources-list.html',
   styleUrls: ['./sources-list.css'],
 })
-export class SourcesList {
+export class SourcesList implements OnChanges {
   @Input() sources: FileModel[] = [];
+  @Input() selectedFileIds: string[] = [];
   @Output() deleteSource = new EventEmitter<string>();
   @Output() clear = new EventEmitter<void>();
   @Output() selectionChanged = new EventEmitter<string[]>();
@@ -21,6 +22,13 @@ export class SourcesList {
   selectAll = false;
   isModalOpen = false;
   selectedFilename: string = '';
+
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes['selectedFileIds'] && this.selectedFileIds) {
+      this.selectedSources = new Set(this.selectedFileIds);
+      this.updateSelectAllState();
+    }
+  }
 
   toggleSelectAll() {
     if (this.selectAll) {
@@ -31,7 +39,8 @@ export class SourcesList {
     this.emitSelectionChange();
   }
 
-  toggleSource(sourceId: string) {
+  toggleSource(sourceId: string, event: Event) {
+    event.stopPropagation();
     if (this.selectedSources.has(sourceId)) {
       this.selectedSources.delete(sourceId);
     } else {
@@ -49,7 +58,8 @@ export class SourcesList {
     this.selectAll = this.sources.length > 0 && this.selectedSources.size === this.sources.length;
   }
 
-  deleteSelectedSource(filename: string) {
+  deleteSelectedSource(filename: string, event: Event) {
+    event.stopPropagation();
     const source = this.sources.find(s => s.file_name === filename);
     if (source) {
       this.selectedSources.delete(source.id);

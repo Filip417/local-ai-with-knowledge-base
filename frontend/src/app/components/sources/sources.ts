@@ -44,6 +44,7 @@ export class Sources implements OnInit {
 
     const existingNames = new Set(this.sources().map(s => s.file_name));
     const uniqueFiles: File[] = [];
+    const newFileNames: string[] = [];
 
     for (const file of files) {
       if (existingNames.has(file.name)) {
@@ -52,6 +53,7 @@ export class Sources implements OnInit {
       }
       existingNames.add(file.name);
       uniqueFiles.push(file);
+      newFileNames.push(file.name);
     }
 
     if (!uniqueFiles.length) return;
@@ -64,6 +66,14 @@ export class Sources implements OnInit {
       }
 
       await this.loadFiles();
+      
+      // Auto-select newly uploaded files
+      const newFileIds = this.sources()
+        .filter(s => newFileNames.includes(s.file_name))
+        .map(s => s.id);
+      
+      this.selectedFileIds.update(ids => [...ids, ...newFileIds]);
+      this.selectionChanged.emit(this.selectedFileIds());
     } catch (error) {
       console.error('Error uploading files:', error);
     } finally {

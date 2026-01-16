@@ -1,4 +1,5 @@
 from fastapi import APIRouter, HTTPException, UploadFile, Query, File
+from fastapi.responses import StreamingResponse
 from app.models.file import File as FileModel
 from app.repositories import get_file_repository
 
@@ -78,18 +79,15 @@ async def get_file_content(filename: str = Query(...)):
     
     file_record = files[0]
     
-    try:
-        with open(file_record.file_path, 'r', encoding='utf-8') as f:
-            content = f.read()
-        return {
-            "file_name": file_record.file_name,
-            "content": content,
-            "file_size_bytes": file_record.file_size_bytes
-        }
-    except FileNotFoundError:
-        raise HTTPException(status_code=404, detail=f"File '{filename}' not found on disk.")
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error reading file: {str(e)}")
+    if (file_record.file_extension == 'txt'):
+        try:
+            def iterfile():
+                with open(file_record.file_path, 'r', encoding='utf-8') as f:
+                    yield from f
+            
+            return StreamingResponse(iterfile(), media_type="text/plain")
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Error reading file: {str(e)}")
 
 
 @router.delete("/files")
