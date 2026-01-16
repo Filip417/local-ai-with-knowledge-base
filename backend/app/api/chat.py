@@ -30,7 +30,6 @@ async def chat_endpoint(request: ChatRequest):
         except ValueError:
             raise HTTPException(status_code=400, detail="Invalid file ID format")
 
-    print(f"api received: {selected_file_ids=}")
     # StreamingResponse keeps HTTP connection open while chunks are sent.
     return StreamingResponse(
         handle_query_stream(request.messages, selected_file_ids),

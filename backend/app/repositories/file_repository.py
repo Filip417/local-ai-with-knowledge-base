@@ -32,7 +32,6 @@ class FileRepository:
         
         self._files[file.id] = file
         self._file_path_index[file.file_path] = file.id
-        print(f"file created: {file.id=}")
         return file
 
     def get_by_id(self, file_id: UUID) -> Optional[File]:

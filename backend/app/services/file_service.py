@@ -76,7 +76,6 @@ def get_results_from_vector_db(
     file_id_strs = [str(fid) for fid in selected_file_ids]
     kwargs["where"] = {"file_id": {"$in": file_id_strs}}
     results = collection.query(**kwargs)
-    print(f"{results=}")  # tmp for DEBUG
     return results
 
     

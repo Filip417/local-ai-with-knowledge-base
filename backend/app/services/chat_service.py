@@ -147,5 +147,4 @@ def get_llm_formatted_messages(messages : List[Message]) -> List[Dict[str, str]]
     for m in reversed(messages):
         llm_formatted_messages.insert(0, {"role": m.role.value, "content": m.text})
 
-    print(f"{llm_formatted_messages=}")
     return llm_formatted_messages
