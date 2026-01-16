@@ -33,14 +33,14 @@
         <input 
           type="checkbox" 
           [checked]="isSourceSelected(source)" 
-          (change)="toggleSource(source)"
+          (change)="toggleSource(source.id)"
           class="checkbox-input"
         />
       </label>
-      <span class="source-name">{{ source }}</span>
+      <span class="source-name">{{ source.file_name }}</span>
       <button 
         class="delete-btn" 
-        (click)="deleteSelectedSource(source)"
+        (click)="deleteSelectedSource(source.file_name)"
         aria-label="Delete source"
         title="Delete source"
       >

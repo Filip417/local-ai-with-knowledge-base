@@ -1,8 +1,9 @@
-import { Component, effect, ElementRef, signal, ViewChild } from '@angular/core';
+import { Component, effect, ElementRef, Input, signal, ViewChild } from '@angular/core';
 import { ChatHeader } from '../chat-header/chat-header';
 import { ChatMessages } from '../chat-messages/chat-messages';
 import { ChatInput } from '../chat-input/chat-input';
 import { Message, Role } from '../../models/message';
+import { ChatRequest } from '../../models/chat-request';
 
 @Component({
   selector: 'app-chat',
@@ -12,6 +13,7 @@ import { Message, Role } from '../../models/message';
   styleUrls: ['./chat.css']
 })
 export class Chat {
+  @Input() selectedFileIds: string[] = [];
   messages = signal<Message[]>([]);
   isSending = signal(false);
   @ViewChild('chatContainer') chatContainer?: ElementRef<HTMLElement>;
@@ -38,15 +40,29 @@ export class Chat {
     this.abortController = new AbortController();
     this.isSending.set(true);
 
-    this.addMessage({ role: Role.User, text, timestamp: new Date().toISOString() });
-    const assistantMsg: Message = { role: Role.Assistant, text: '', timestamp: new Date().toISOString() };
+    this.addMessage({ id: crypto.randomUUID(), role: Role.User, text, timestamp: new Date().toISOString() });
+    
+    // Send messages excluding the assistant placeholder
+    const messagesToSend = this.messages();
+    
+    const assistantMsg: Message = { 
+      id: crypto.randomUUID(),
+      role: Role.Assistant, 
+      text: '', 
+      timestamp: new Date().toISOString() 
+    };
     this.addMessage(assistantMsg);
 
     try {
+      const requestBody: ChatRequest = {
+        messages: messagesToSend,
+        selected_file_ids: this.selectedFileIds.length > 0 ? this.selectedFileIds : undefined
+      };
+
       const response = await fetch(this.ENDPOINT_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages: this.messages() }),
+        body: JSON.stringify(requestBody),
         signal: this.abortController.signal 
       });
 

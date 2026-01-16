@@ -2,8 +2,8 @@
 <app-header></app-header>
 
 <div class="column-container">
-    <app-sources></app-sources>
-    <app-chat></app-chat>
+    <app-sources (selectionChanged)="onSelectionChanged($event)"></app-sources>
+    <app-chat [selectedFileIds]="selectedFileIds()"></app-chat>
 </div>
 
 <router-outlet></router-outlet>

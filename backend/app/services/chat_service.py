@@ -1,13 +1,14 @@
-from typing import List, Dict, cast, Any, AsyncGenerator
+from typing import List, Dict, cast, Any, AsyncGenerator, Optional
 from ..models.message import Message
 import asyncio
 from llama_cpp import Llama
 from concurrent.futures import ThreadPoolExecutor
 from llama_cpp import ChatCompletionRequestMessage
 from functools import partial
-from .sources_service import get_results_from_vector_db
+from .file_service import get_results_from_vector_db
 from chromadb import QueryResult
-from app.core.config import CONTEXT_LIMIT, MAX_OUTPUT_TOKENS 
+from app.core.config import CONTEXT_LIMIT, MAX_OUTPUT_TOKENS
+from uuid import UUID 
 
 
 llm = Llama(model_path=r"C:\Users\sawin\coding-projects\local-ai-with-knowledge-base\local-ai-with-knowledge-base\backend\app\llmmodels\Llama-3.2-3B-Instruct-Q5_K_M.gguf",
@@ -20,10 +21,11 @@ model_lock = asyncio.Lock()
 
 async def _generate_stream(
         messages: List[Message],
-        max_tokens: int = MAX_OUTPUT_TOKENS) -> AsyncGenerator[str, None]:
+        max_tokens: int = MAX_OUTPUT_TOKENS,
+        selected_file_ids: Optional[List[UUID]] = None) -> AsyncGenerator[str, None]:
     
     llm_formatted_messages = get_llm_formatted_messages(messages)
-    knowledge_base_the_most_relevant = get_results_from_vector_db(messages, 5)
+    knowledge_base_the_most_relevant = get_results_from_vector_db(messages, selected_file_ids)
     prompt_messages = cut_into_context_window(
         llm_formatted_messages,
         knowledge_base_the_most_relevant,
@@ -50,12 +52,13 @@ async def _generate_stream(
             await asyncio.sleep(0)
 
 
-async def handle_query_stream(messages: List[Message]):
+async def handle_query_stream(messages: List[Message],
+                              selected_file_ids: Optional[List[UUID]] = None):
     if not messages:
         yield "No messages received"
         return
 
-    async for chunk in _generate_stream(messages):
+    async for chunk in _generate_stream(messages, selected_file_ids=selected_file_ids):
         yield chunk
 
 def count_tokens(text: str) -> int:
@@ -65,7 +68,7 @@ def count_tokens(text: str) -> int:
 
 def cut_into_context_window(
         formatted_messages : List[Dict[str, str]],
-        knowledge_base_the_most_relevant : QueryResult,
+        knowledge_base_the_most_relevant : QueryResult | None,
         max_tokens: int,
         number_of_last_messages_to_prioritise : int = 3) -> List[Dict[str, str]]:
     # Reserve space for the response so the model doesn't cut off mid-sentence

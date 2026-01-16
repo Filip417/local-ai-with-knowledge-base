@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { Chat } from './components/chat/chat';
 import { AppHeader } from './components/app-header/app-header';
@@ -12,4 +12,9 @@ import { Sources } from './components/sources/sources';
   styleUrls: ['./app.css']
 })
 export class App {
+  selectedFileIds = signal<string[]>([]);
+
+  onSelectionChanged(ids: string[]) {
+    this.selectedFileIds.set(ids);
+  }
 }

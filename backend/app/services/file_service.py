@@ -1,11 +1,14 @@
-from typing import List
+from typing import List, Optional
 import uuid
 import os
 import shutil
+from uuid import UUID
 from app.database import chroma_client
 from app.core.config import VECTOR_DB_COLLECTION_NAME
-from ..models.message import Message, Role
+from app.core.enums import Role
+from ..models.message import Message
 from fastapi import UploadFile
+from chromadb import QueryResult
 
 # Init functions
 def clear_documents_collection():
@@ -16,30 +19,44 @@ def clear_documents_collection():
         chroma_client.delete_collection(name=VECTOR_DB_COLLECTION_NAME)
     except Exception:
         return False
-    
     return True
 
 
-def add_documents(documents: List[str]):
+def add_documents(document_content: str, file_id: Optional[UUID]):
     """
-    Adds text chunks to the vector database.
+    Adds text chunks to the vector database with optional file ID tracking.
+    If file_id is provided, it will be used as the document ID.
     """
-    if not documents:
-        return
-        
-    doc_ids = [str(uuid.uuid4()) for _ in documents]
+    if not document_content:
+        return False
+    
+    if file_id:
+        doc_id = str(file_id)
+    else:
+        return False
+    
     collection = chroma_client.get_or_create_collection(name=VECTOR_DB_COLLECTION_NAME)
     collection.add(
-        ids=doc_ids,
-        documents=documents,
+        ids=[doc_id],
+        documents=[document_content],
+        metadatas=[{"file_id": doc_id}]
     )
-    return doc_ids
+    return doc_id
 
 
-def get_results_from_vector_db(query_texts: List[Message], results_to_return : int = 2):
+def get_results_from_vector_db(
+        query_texts: List[Message],
+        selected_file_ids: Optional[List[UUID]] = None) -> QueryResult | None:
     """
-    returns results from chroma db query
+    Returns results from chroma db query, optionally filtered by selected file IDs.
+    
+    Args:
+        query_texts: List of Message objects to query
+        results_to_return: Number of results to return per query
+        selected_file_ids: Optional list of file UUIDs to filter results by
     """
+    if not selected_file_ids:
+        return None
     formatted_query_texts = []
 
     for m in reversed(query_texts):
@@ -49,12 +66,22 @@ def get_results_from_vector_db(query_texts: List[Message], results_to_return : i
             formatted_query_texts.append(m.text)
 
     collection = chroma_client.get_or_create_collection(name=VECTOR_DB_COLLECTION_NAME)
-    results = collection.query(
-    query_texts=formatted_query_texts, # chroma will embed this
-    n_results=results_to_return # how many results to return
-    )
-    print(results) # tmp for DEBUG
+    
+    # Build where filter if specific files are selected
+    kwargs = {
+        "query_texts": formatted_query_texts,
+        "n_results": 100,
+    }
+    
+    file_id_strs = [str(fid) for fid in selected_file_ids]
+    kwargs["where"] = {"file_id": {"$in": file_id_strs}}
+    results = collection.query(**kwargs)
+    print(f"{results=}")  # tmp for DEBUG
     return results
+
+    
+    
+
 
 
 def save_or_reuse_data_file(file: UploadFile):
@@ -63,7 +90,7 @@ def save_or_reuse_data_file(file: UploadFile):
     os.makedirs(data_dir, exist_ok=True)
     raw_name = file.filename or ""
     if not raw_name:
-        return None
+        return False
 
     filename = os.path.basename(raw_name)
     destination = os.path.join(data_dir, filename)
@@ -77,17 +104,24 @@ def save_or_reuse_data_file(file: UploadFile):
             shutil.copyfileobj(file.file, dest)
         return destination
     except Exception:
-        return None
+        return False
 
 
-def upload_file_to_vector_db(file_path: str, file_extension: str):
-    """Load a saved file from disk and push its contents into the vector DB."""
+def upload_file_to_vector_db(file_path: str, file_extension: str, file_id: Optional[UUID] = None):
+    """
+    Load a saved file from disk and push its contents into the vector DB with file ID tracking.
+    
+    Args:
+        file_path: Path to the file
+        file_extension: File extension (e.g., 'txt')
+        file_id: UUID of the file for tracking in vector DB
+    """
     if file_extension.lower() == "txt":
         try:
             with open(file_path, "r", encoding="utf-8", errors="ignore") as f:
                 text_content = f.read()
-            add_documents([text_content])
-            return True
+            is_added = add_documents(text_content, file_id=file_id)
+            return True if is_added else False
         except Exception as e:
             print(e)
             return False
@@ -108,25 +142,19 @@ def delete_file_from_disk(filename: str):
         return False
 
 
-def delete_file_from_vector_db(filename: str):
-    """Delete documents associated with a file from the vector database."""
+def delete_file_from_vector_db(file_id: UUID):
+    """
+    Delete documents associated with a file ID from the vector database.
+    
+    Args:
+        file_id: UUID of the file to delete from vector DB
+    """
     try:
-        data_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "data"))
-        file_path = os.path.join(data_dir, os.path.basename(filename))
+        collection = chroma_client.get_or_create_collection(name=VECTOR_DB_COLLECTION_NAME)
         
-        # Read the file content to identify documents to delete
-        if os.path.exists(file_path):
-            with open(file_path, "r", encoding="utf-8", errors="ignore") as f:
-                text_content = f.read()
-            
-            collection = chroma_client.get_or_create_collection(name=VECTOR_DB_COLLECTION_NAME)
-            # Query to find documents matching this file's content
-            results = collection.query(query_texts=[text_content], n_results=1)
-            
-            # Delete the matching documents
-            if results and results.get("ids") and len(results["ids"]) > 0:
-                collection.delete(ids=results["ids"][0])
-
+        # Delete documents by file ID
+        collection.delete(ids=[str(file_id)])
+        
         return True
     except Exception as e:
         print(f"Error deleting file from vector db: {e}")
