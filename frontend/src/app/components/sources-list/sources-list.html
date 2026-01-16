@@ -28,7 +28,7 @@
       </button>
     </div>
 
-    <div class="source-item" *ngFor="let source of sources" role="listitem">
+    <div class="source-item" (click)="openModal(source.file_name)" *ngFor="let source of sources" role="listitem">
       <label class="checkbox-label">
         <input 
           type="checkbox" 
@@ -63,3 +63,9 @@
   </ng-template>
 
 </div>
+
+<app-file-content-modal 
+  [isOpen]="isModalOpen"
+  [filename]="selectedFilename"
+  (close)="closeModal()">
+</app-file-content-modal>

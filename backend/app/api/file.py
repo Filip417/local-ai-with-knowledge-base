@@ -63,6 +63,35 @@ async def get_all_files():
     }
 
 
+@router.get("/file-content")
+async def get_file_content(filename: str = Query(...)):
+    """
+    Get the content of a specific file by filename.
+    """
+    if not filename:
+        raise HTTPException(status_code=400, detail="Missing filename.")
+    
+    repo = get_file_repository()
+    files = repo.get_by_name(filename)
+    if not files:
+        raise HTTPException(status_code=404, detail=f"File '{filename}' not found.")
+    
+    file_record = files[0]
+    
+    try:
+        with open(file_record.file_path, 'r', encoding='utf-8') as f:
+            content = f.read()
+        return {
+            "file_name": file_record.file_name,
+            "content": content,
+            "file_size_bytes": file_record.file_size_bytes
+        }
+    except FileNotFoundError:
+        raise HTTPException(status_code=404, detail=f"File '{filename}' not found on disk.")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error reading file: {str(e)}")
+
+
 @router.delete("/files")
 async def clear_file_collection_in_vector_db():
     """

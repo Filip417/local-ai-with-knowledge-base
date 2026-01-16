@@ -2,11 +2,12 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { FileModel } from '../../models/file';
+import { FileContentModal } from '../file-content-modal/file-content-modal';
 
 @Component({
   selector: 'app-sources-list',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, FileContentModal],
   templateUrl: './sources-list.html',
   styleUrls: ['./sources-list.css'],
 })
@@ -18,6 +19,8 @@ export class SourcesList {
   
   selectedSources = new Set<string>();
   selectAll = false;
+  isModalOpen = false;
+  selectedFilename: string = '';
 
   toggleSelectAll() {
     if (this.selectAll) {
@@ -74,6 +77,15 @@ export class SourcesList {
 
   clearSources() {
     this.clear.emit();
+  }
+
+  openModal(filename: string) {
+    this.selectedFilename = filename;
+    this.isModalOpen = true;
+  }
+
+  closeModal() {
+    this.isModalOpen = false;
   }
 
   private emitSelectionChange() {
