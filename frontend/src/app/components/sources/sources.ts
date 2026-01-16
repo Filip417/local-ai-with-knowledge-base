@@ -39,11 +39,39 @@ export class Sources implements OnInit {
     }
   }
 
-  async uploadFile(file: File) {
-    if (this.isUploading() || !file) return;
+  async uploadFiles(files: File[]) {
+    if (this.isUploading() || !files?.length) return;
+
+    const existingNames = new Set(this.sources().map(s => s.file_name));
+    const uniqueFiles: File[] = [];
+
+    for (const file of files) {
+      if (existingNames.has(file.name)) {
+        console.warn(`Skipping duplicate file name: ${file.name}`);
+        continue;
+      }
+      existingNames.add(file.name);
+      uniqueFiles.push(file);
+    }
+
+    if (!uniqueFiles.length) return;
 
     this.isUploading.set(true);
 
+    try {
+      for (const file of uniqueFiles) {
+        await this.uploadSingleFile(file);
+      }
+
+      await this.loadFiles();
+    } catch (error) {
+      console.error('Error uploading files:', error);
+    } finally {
+      this.isUploading.set(false);
+    }
+  }
+
+  private async uploadSingleFile(file: File) {
     try {
       const formData = new FormData();
       formData.append('file', file);
@@ -53,16 +81,11 @@ export class Sources implements OnInit {
         body: formData
       });
 
-      if (response.ok) {
-        const result = await response.json();
-        await this.loadFiles();
-      } else {
+      if (!response.ok) {
         console.error('Upload failed:', response.statusText);
       }
     } catch (error) {
       console.error('Error uploading file:', error);
-    } finally {
-      this.isUploading.set(false);
     }
   }
 

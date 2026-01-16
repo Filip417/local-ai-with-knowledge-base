@@ -1,5 +1,5 @@
 <div #sourcesContainer class="sources" role="region" aria-label="Sources management">
   <app-sources-header></app-sources-header>
   <app-sources-list [sources]="sources()" (deleteSource)="deleteFile($event)" (selectionChanged)="onSelectionChanged($event)"></app-sources-list>
-  <app-sources-input (upload)="uploadFile($event)" (clear)="clearSources()"></app-sources-input>
+  <app-sources-input (upload)="uploadFiles($event)" (clear)="clearSources()"></app-sources-input>
 </div>
