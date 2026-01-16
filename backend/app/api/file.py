@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException, UploadFile, Query, File
-from ..models.file import File as FileModel
-from ..repositories import get_file_repository
+from app.models.file import File as FileModel
+from app.repositories import get_file_repository
 
 
 router = APIRouter()

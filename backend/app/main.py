@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from .api.chat import router as chat_router
-from .api.file import router as vector_db_router
+from app.api.chat import router as chat_router
+from app.api.file import router as vector_db_router
 from contextlib import asynccontextmanager
 
 # Optional startup/shutdown events

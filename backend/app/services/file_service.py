@@ -6,7 +6,7 @@ from uuid import UUID
 from app.database import chroma_client
 from app.core.config import VECTOR_DB_COLLECTION_NAME
 from app.core.enums import Role
-from ..models.message import Message
+from app.models.message import Message
 from fastapi import UploadFile
 from chromadb import QueryResult
 

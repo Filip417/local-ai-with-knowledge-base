@@ -1,8 +1,8 @@
 from typing import Optional, List, Dict
 from fastapi import UploadFile
 from uuid import UUID
-from ..models.file import File
-from ..services.file_service import (clear_documents_collection,
+from app.models.file import File
+from app.services.file_service import (clear_documents_collection,
                                         upload_file_to_vector_db,
                                         save_or_reuse_data_file,
                                         delete_file_from_disk,

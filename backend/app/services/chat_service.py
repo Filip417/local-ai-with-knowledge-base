@@ -1,11 +1,11 @@
 from typing import List, Dict, cast, Any, AsyncGenerator, Optional
-from ..models.message import Message
+from app.models.message import Message
 import asyncio
 from llama_cpp import Llama
 from concurrent.futures import ThreadPoolExecutor
 from llama_cpp import ChatCompletionRequestMessage
 from functools import partial
-from .file_service import get_results_from_vector_db
+from app.services.file_service import get_results_from_vector_db
 from chromadb import QueryResult
 from app.core.config import CONTEXT_LIMIT, MAX_OUTPUT_TOKENS
 from uuid import UUID 
