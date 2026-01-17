@@ -20,7 +20,7 @@ app.add_middleware(
 app.include_router(chat_router, prefix="/api/v1", tags=["chat"])
 app.include_router(file_router, prefix="/api/v1", tags=["file"])
 
-# Initialize ChromaDB client and collection
-initialize_chroma_client()
-
-uvicorn.run(app, host="0.0.0.0", port=8000)
+if __name__ == "__main__":
+    # Initialize ChromaDB client and collection
+    initialize_chroma_client()
+    uvicorn.run("app.main:app", host="0.0.0.0", port=8000, reload=True)
