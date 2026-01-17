@@ -84,8 +84,8 @@ def get_results_from_vector_db(
 
 
 def save_or_reuse_data_file(file: UploadFile):
-    """Save upload into backend/data (reusing existing file name) and return the path."""
-    data_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "data"))
+    """Save upload into backend/sources (reusing existing file name) and return the path."""
+    data_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "sources"))
     os.makedirs(data_dir, exist_ok=True)
     raw_name = file.filename or ""
     if not raw_name:
@@ -128,9 +128,9 @@ def upload_file_to_vector_db(file_path: str, file_extension: str, file_id: Optio
 
 
 def delete_file_from_disk(filename: str):
-    """Delete a file from the backend/data directory."""
+    """Delete a file from the backend/sources directory."""
     try:
-        data_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "data"))
+        data_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "sources"))
         file_path = os.path.join(data_dir, os.path.basename(filename))
         
         if os.path.exists(file_path):
