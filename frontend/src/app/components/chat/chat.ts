@@ -4,6 +4,7 @@ import { ChatMessages } from '../chat-messages/chat-messages';
 import { ChatInput } from '../chat-input/chat-input';
 import { Message, Role } from '../../models/message';
 import { ChatRequest } from '../../models/chat-request';
+import { ChatService } from '../../services/chat.service';
 import { ApiService } from '../../services/api.service';
 
 @Component({
@@ -14,6 +15,7 @@ import { ApiService } from '../../services/api.service';
   styleUrls: ['./chat.css']
 })
 export class Chat {
+  private chatService = inject(ChatService);
   private apiService = inject(ApiService);
   
   @Input() selectedFileIds: string[] = [];
@@ -32,19 +34,13 @@ export class Chat {
     this.messages.update(arr => [...arr, message]);
   }
 
-  private abortController: AbortController | null = null;
-
   async sendPrompt(msg: string) {
     const text = msg.trim();
     if (this.isSending() || !text) return;
 
-    // Initialize a new controller for this request
-    this.abortController = new AbortController();
     this.isSending.set(true);
-
     this.addMessage({ role: Role.User, text, timestamp: new Date().toISOString() });
     
-    // Send messages excluding the assistant placeholder
     const messagesToSend = this.messages();
     
     const assistantMsg: Message = { 
@@ -60,36 +56,16 @@ export class Chat {
         selected_file_ids: this.selectedFileIds.length > 0 ? this.selectedFileIds : undefined
       };
 
-      const response = await fetch(this.apiService.endpoints.chat, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(requestBody),
-        signal: this.abortController.signal 
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP Error: ${response.status}`);
-      }
-
-      const reader = response.body?.getReader();
-      const decoder = new TextDecoder();
-
-      while (reader) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        
-        const chunk = decoder.decode(value);
+      await this.chatService.sendChatStream(requestBody, (chunk: string) => {
         this.messages.update(msgs => {
           const updated = [...msgs];
           const lastIndex = updated.length - 1;
           updated[lastIndex] = { ...updated[lastIndex], text: updated[lastIndex].text + chunk };
           return updated;
         });
-      }
+      });
     } catch (err: any) {
-      if (err.name === 'AbortError') {
-        console.log('Fetch aborted: Connection closed by user.');
-      } else {
+      if (err.name !== 'AbortError') {
         console.error("Stream failed", err);
         // Update the assistant message with error feedback
         this.messages.update(msgs => {
@@ -105,15 +81,11 @@ export class Chat {
       }
     } finally {
       this.isSending.set(false);
-      this.abortController = null; // Reset controller
     }
   }
 
   clearChatHistory(): void {
-    // Abort the ongoing request if it exists
-    if (this.abortController) {
-      this.abortController.abort();
-    }
+    this.chatService.abortCurrentRequest();
     this.messages.set([]);
   }
 
