@@ -3,26 +3,22 @@ from app.models.message import Message
 import asyncio
 from llama_cpp import Llama
 from concurrent.futures import ThreadPoolExecutor
-from llama_cpp import ChatCompletionRequestMessage
 from functools import partial
 from app.services.file_service import get_results_from_vector_db
 from chromadb import QueryResult
-from app.core.config import CONTEXT_LIMIT, MAX_OUTPUT_TOKENS
+from app.core.config import CONTEXT_LIMIT, MAX_OUTPUT_TOKENS, MODEL_ABSOLUTE_PATH, ROLE_LLM_PROMPT
 from uuid import UUID 
 
 
-llm = Llama(model_path=r"C:\Users\sawin\coding-projects\local-ai-with-knowledge-base\local-ai-with-knowledge-base\backend\app\llmmodels\Llama-3.2-3B-Instruct-Q5_K_M.gguf",
-            n_ctx=CONTEXT_LIMIT,  # context window
-            n_threads=4
-            )
+llm = Llama(model_path=MODEL_ABSOLUTE_PATH, n_ctx=CONTEXT_LIMIT, n_threads=8)
 executor = ThreadPoolExecutor(max_workers=1) # 1 thread worker for LLM interactions
 model_lock = asyncio.Lock()
 
 
-async def _generate_stream(
+async def handle_query_stream(
         messages: List[Message],
-        max_tokens: int = MAX_OUTPUT_TOKENS,
-        selected_file_ids: Optional[List[UUID]] = None) -> AsyncGenerator[str, None]:
+        selected_file_ids: Optional[List[UUID]] = None,
+        max_tokens: int = MAX_OUTPUT_TOKENS) -> AsyncGenerator[str, None]:
     
     llm_formatted_messages = get_llm_formatted_messages(messages)
     knowledge_base_the_most_relevant = get_results_from_vector_db(messages, selected_file_ids)
@@ -35,7 +31,7 @@ async def _generate_stream(
     # Get the streaming iterator from llama-cpp in the thread pool
     sync_func = partial(
         llm.create_chat_completion,
-        messages=cast(List[ChatCompletionRequestMessage], prompt_messages),
+        messages=prompt_messages, # type: ignore[arg-type],
         max_tokens=max_tokens,
         stream=True
     )
@@ -52,15 +48,6 @@ async def _generate_stream(
             await asyncio.sleep(0)
 
 
-async def handle_query_stream(messages: List[Message],
-                              selected_file_ids: Optional[List[UUID]] = None):
-    if not messages:
-        yield "No messages received"
-        return
-
-    async for chunk in _generate_stream(messages, selected_file_ids=selected_file_ids):
-        yield chunk
-
 def count_tokens(text: str) -> int:
     # Rough estimate: 1 token ~= 4 characters for English
     # can also use len(llm.tokenize("test".encode('utf-8'))) for more accuracy
@@ -70,39 +57,26 @@ def cut_into_context_window(
         formatted_messages : List[Dict[str, str]],
         knowledge_base_the_most_relevant : QueryResult | None,
         max_tokens: int,
-        number_of_last_messages_to_prioritise : int = 3) -> List[Dict[str, str]]:
+        number_of_last_messages_to_prioritise : int = 10) -> List[Dict[str, str]]:
+    
     # Reserve space for the response so the model doesn't cut off mid-sentence
     SAFE_LIMIT = CONTEXT_LIMIT - max_tokens
     current_tokens = 0
     final_context = []
 
-    # 2. Extract Mandatory components: System Prompt and Latest Message
-    system_prompt = next((m for m in formatted_messages if m["role"] == "system"), None)
-    latest_message = formatted_messages[-1] if formatted_messages else None
-    
-    # Calculate initial overhead
-    if system_prompt:
-        current_tokens += count_tokens(system_prompt["content"])
-    if latest_message and latest_message != system_prompt:
-        current_tokens += count_tokens(latest_message["content"])
+    # 1. Extract Mandatory components: 
+    # System Prompt, Last User Message and Prioritize Past x Messages
+    mandatory_messages = [ m for m in formatted_messages ][:number_of_last_messages_to_prioritise+2]
 
-    # 3. Prioritize Past x Messages (excluding system and latest)
-    # We look at messages from newest to oldest to keep recent context
-    history_candidates = [
-        m for m in formatted_messages 
-        if m != system_prompt and m != latest_message
-    ][-number_of_last_messages_to_prioritise:] # Get last x
-
-    valid_history = []
-    for msg in reversed(history_candidates):
+    for msg in mandatory_messages:
         tokens = count_tokens(msg["content"])
         if current_tokens + tokens < SAFE_LIMIT:
-            valid_history.insert(0, msg) # Keep chronological order
+            final_context.append(msg)
             current_tokens += tokens
         else:
-            break
+            return final_context
 
-    # 4. Prioritize Knowledge Base (RAG) results
+    # 2. Knowledge Base (RAG) results
     # Flatten documents from Chroma QueryResult
     all_docs = []
 
@@ -120,11 +94,6 @@ def cut_into_context_window(
             current_tokens += tokens
         else:
             break
-
-    # 5. Reassemble the final message list
-    # Usually: [System] + [Docs/Context] + [History] + [Latest User Query]
-    if system_prompt:
-        final_context.append(system_prompt)
     
     if valid_docs:
         context_str = "\n---\n".join(valid_docs)
@@ -132,19 +101,15 @@ def cut_into_context_window(
             "role": "system", 
             "content": f"Relevant context from database:\n{context_str}"
         })
-        
-    final_context.extend(valid_history)
-    
-    if latest_message and latest_message != system_prompt:
-        final_context.append(latest_message)
 
-    print(f"{final_context=}")
-    return final_context
+    # Reverse 
+    print(f"{final_context[::-1]=}")
+    return final_context[::-1]
 
 
 def get_llm_formatted_messages(messages : List[Message]) -> List[Dict[str, str]]:
-    llm_formatted_messages = [{"role": "system", "content": "You are a helpful assistant."}]
-    for m in reversed(messages):
+    llm_formatted_messages = [{"role": "system", "content": ROLE_LLM_PROMPT}]
+    for m in messages:
         llm_formatted_messages.insert(0, {"role": m.role.value, "content": m.text})
 
     return llm_formatted_messages
