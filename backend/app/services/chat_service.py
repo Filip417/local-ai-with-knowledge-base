@@ -21,14 +21,18 @@ async def handle_query_stream(
         max_tokens: int = MAX_OUTPUT_TOKENS) -> AsyncGenerator[str, None]:
     
     llm_formatted_messages = get_llm_formatted_messages(messages)
-    knowledge_base_the_most_relevant = get_results_from_vector_db(messages[-1], selected_file_ids)
+
+    knowledge_base_the_most_relevant = get_results_from_vector_db(
+        last_user_message=messages[-1],
+        selected_file_ids=selected_file_ids)
+    
     prompt_messages = cut_into_context_window(
         llm_formatted_messages,
         knowledge_base_the_most_relevant,
         max_tokens)
+    
     loop = asyncio.get_running_loop()
     
-    # Get the streaming iterator from llama-cpp in the thread pool
     sync_func = partial(
         llm.create_chat_completion,
         messages=prompt_messages, # type: ignore[arg-type],
@@ -36,7 +40,6 @@ async def handle_query_stream(
         stream=True
     )
     
-    # This returns the iterator itself
     stream_iterator = await loop.run_in_executor(executor, sync_func)
 
     # Yield chunks as they arrive

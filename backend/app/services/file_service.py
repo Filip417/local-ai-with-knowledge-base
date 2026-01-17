@@ -1,15 +1,14 @@
 from typing import List, Optional
-import uuid
 import os
 import shutil
 from uuid import UUID
 from app.core.database import chroma_client
 from app.core.config import VECTOR_DB_COLLECTION_NAME
-from app.core.enums import Role
 from app.models.message import Message
 from fastapi import UploadFile
 from chromadb import QueryResult
 
+data_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "sources"))
 
 def clear_documents_collection():
     """
@@ -17,9 +16,10 @@ def clear_documents_collection():
     """
     try:
         chroma_client.delete_collection(name=VECTOR_DB_COLLECTION_NAME)
-    except Exception:
+        chroma_client.create_collection(name=VECTOR_DB_COLLECTION_NAME)
+        return True
+    except:
         return False
-    return True
 
 
 def add_documents(document_content: str, file_id: Optional[UUID]):
@@ -61,14 +61,9 @@ def get_results_from_vector_db(
     results = collection.query(**kwargs)
     return results
 
-    
-    
-
-
 
 def save_or_reuse_data_file(file: UploadFile):
     """Save upload into backend/sources (reusing existing file name) and return the path."""
-    data_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "sources"))
     os.makedirs(data_dir, exist_ok=True)
     raw_name = file.filename or ""
     if not raw_name:
@@ -92,13 +87,8 @@ def save_or_reuse_data_file(file: UploadFile):
 def upload_file_to_vector_db(file_path: str, file_extension: str, file_id: Optional[UUID] = None):
     """
     Load a saved file from disk and push its contents into the vector DB with file ID tracking.
-    
-    Args:
-        file_path: Path to the file
-        file_extension: File extension (e.g., 'txt')
-        file_id: UUID of the file for tracking in vector DB
     """
-    if file_extension.lower() == "txt":
+    if file_extension == "txt":
         try:
             with open(file_path, "r", encoding="utf-8", errors="ignore") as f:
                 text_content = f.read()
@@ -113,7 +103,6 @@ def upload_file_to_vector_db(file_path: str, file_extension: str, file_id: Optio
 def delete_file_from_disk(filename: str):
     """Delete a file from the backend/sources directory."""
     try:
-        data_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "sources"))
         file_path = os.path.join(data_dir, os.path.basename(filename))
         
         if os.path.exists(file_path):
@@ -127,9 +116,6 @@ def delete_file_from_disk(filename: str):
 def delete_file_from_vector_db(file_id: UUID):
     """
     Delete documents associated with a file ID from the vector database.
-    
-    Args:
-        file_id: UUID of the file to delete from vector DB
     """
     try:
         collection = chroma_client.get_or_create_collection(name=VECTOR_DB_COLLECTION_NAME)
@@ -141,7 +127,6 @@ def delete_file_from_vector_db(file_id: UUID):
     except Exception as e:
         print(f"Error deleting file from vector db: {e}")
         return False
-
 
 
 def handle_file_stream(file):
