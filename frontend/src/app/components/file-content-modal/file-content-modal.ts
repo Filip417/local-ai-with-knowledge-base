@@ -30,14 +30,12 @@ export class FileContentModal implements OnInit, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    if (changes['isOpen'] && this.isOpen && this.filename) {
-      this.loadFileContent();
-    } else if (changes['filename'] && this.isOpen && this.filename) {
+    if ((changes['isOpen'] || changes['filename']) && this.isOpen && this.filename) {
       this.loadFileContent();
     }
   }
 
-  loadFileContent() {
+  private loadFileContent() {
     this.content = '';
     this.isLoading = true;
     this.error = null;

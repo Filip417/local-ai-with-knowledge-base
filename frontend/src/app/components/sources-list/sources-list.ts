@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges, computed, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { FileModel } from '../../models/file';
@@ -18,54 +18,51 @@ export class SourcesList implements OnChanges {
   @Output() clear = new EventEmitter<void>();
   @Output() selectionChanged = new EventEmitter<string[]>();
   
-  selectedSources = new Set<string>();
-  selectAll = false;
-  isModalOpen = false;
-  selectedFilename: string = '';
+  selectedSources = signal<string[]>([]);
+  isAllSelected = computed(() => 
+    this.sources.length > 0 && 
+    this.selectedSources().length === this.sources.length
+  );
+  isModalOpen = signal(false);
+  selectedFilename = signal('');
 
   ngOnChanges(changes: SimpleChanges) {
     if (changes['selectedFileIds'] && this.selectedFileIds) {
-      this.selectedSources = new Set(this.selectedFileIds);
-      this.updateSelectAllState();
+      this.selectedSources.set(this.selectedFileIds);
     }
   }
 
   toggleSelectAll() {
-    if (this.selectAll) {
-      this.sources.forEach(source => this.selectedSources.add(source.id));
+    if (this.isAllSelected()) {
+      this.selectedSources.set([]);
     } else {
-      this.selectedSources.clear();
+      this.selectedSources.set(this.sources.map(s => s.id));
     }
     this.emitSelectionChange();
   }
 
   toggleSource(sourceId: string, event: Event) {
     event.stopPropagation();
-    if (this.selectedSources.has(sourceId)) {
-      this.selectedSources.delete(sourceId);
+    const current = this.selectedSources();
+    if (current.includes(sourceId)) {
+      this.selectedSources.set(current.filter(id => id !== sourceId));
     } else {
-      this.selectedSources.add(sourceId);
+      this.selectedSources.set([...current, sourceId]);
     }
-    this.updateSelectAllState();
     this.emitSelectionChange();
   }
 
   isSourceSelected(source: FileModel): boolean {
-    return this.selectedSources.has(source.id);
-  }
-
-  updateSelectAllState() {
-    this.selectAll = this.sources.length > 0 && this.selectedSources.size === this.sources.length;
+    return this.selectedSources().includes(source.id);
   }
 
   deleteSelectedSource(filename: string, event: Event) {
     event.stopPropagation();
     const source = this.sources.find(s => s.name === filename);
     if (source) {
-      this.selectedSources.delete(source.id);
+      this.selectedSources.set(this.selectedSources().filter(id => id !== source.id));
     }
     this.deleteSource.emit(filename);
-    this.updateSelectAllState();
     this.emitSelectionChange();
   }
 
@@ -73,15 +70,14 @@ export class SourcesList implements OnChanges {
     event.stopPropagation();
     const filenamesToDelete: string[] = [];
     this.sources.forEach(source => {
-      if (this.selectedSources.has(source.id)) {
+      if (this.selectedSources().includes(source.id)) {
         filenamesToDelete.push(source.name);
       }
     });
     filenamesToDelete.forEach(source => {
       this.deleteSource.emit(source);
     });
-    this.selectedSources.clear();
-    this.selectAll = false;
+    this.selectedSources.set([]);
     this.emitSelectionChange();
   }
 
@@ -90,16 +86,16 @@ export class SourcesList implements OnChanges {
   }
 
   openModal(filename: string) {
-    this.selectedFilename = filename;
-    this.isModalOpen = true;
+    this.selectedFilename.set(filename);
+    this.isModalOpen.set(true);
   }
 
   closeModal() {
-    this.isModalOpen = false;
+    this.isModalOpen.set(false);
   }
 
   private emitSelectionChange() {
-    this.selectionChanged.emit(Array.from(this.selectedSources));
+    this.selectionChanged.emit(this.selectedSources());
   }
 
 }

@@ -6,8 +6,4 @@ import { Component } from '@angular/core';
   templateUrl: './app-header.html',
   styleUrls: ['./app-header.css']
 })
-export class AppHeader {
-  onSettingsClick() {
-    console.log('Settings clicked');
-  }
-}
+export class AppHeader {}

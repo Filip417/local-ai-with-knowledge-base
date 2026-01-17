@@ -3,7 +3,6 @@ import { ChatHeader } from '../chat-header/chat-header';
 import { ChatMessages } from '../chat-messages/chat-messages';
 import { ChatInput } from '../chat-input/chat-input';
 import { Message, Role } from '../../models/message';
-import { ChatRequest } from '../../models/chat-request';
 import { ChatService } from '../../services/chat.service';
 import { ApiService } from '../../services/api.service';
 
@@ -51,7 +50,7 @@ export class Chat {
     this.addMessage(assistantMsg);
 
     try {
-      const requestBody: ChatRequest = {
+      const requestBody = {
         messages: messagesToSend,
         selected_file_ids: this.selectedFileIds.length > 0 ? this.selectedFileIds : undefined
       };

@@ -5,14 +5,14 @@
       <label class="checkbox-label" (click)="toggleSelectAll()">
         <input 
           type="checkbox" 
-          [(ngModel)]="selectAll" 
+          [checked]="isAllSelected()" 
           (change)="toggleSelectAll()"
           class="checkbox-input"
         />
         <span class="checkbox-text">Select all sources</span>
         </label>
       <button 
-        *ngIf="selectedSources.size > 0"
+        *ngIf="selectedSources().length > 0"
         class="delete-btn" 
         (click)="deleteSelected($event)"
         aria-label="Delete selected sources"
@@ -65,7 +65,7 @@
 </div>
 
 <app-file-content-modal 
-  [isOpen]="isModalOpen"
-  [filename]="selectedFilename"
+  [isOpen]="isModalOpen()"
+  [filename]="selectedFilename()"
   (close)="closeModal()">
 </app-file-content-modal>

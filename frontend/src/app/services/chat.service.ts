@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { ApiService } from './api.service';
-import { ChatRequest } from '../models/chat-request';
 import { Message } from '../models/message';
 
 /**
@@ -12,6 +12,7 @@ import { Message } from '../models/message';
 })
 export class ChatService {
   private apiService = inject(ApiService);
+  private http = inject(HttpClient);
   private abortController: AbortController | null = null;
 
   /**
@@ -20,7 +21,7 @@ export class ChatService {
    * @param onChunk - Callback function to handle each streamed chunk
    * @throws Error if the HTTP request fails
    */
-  async sendChatStream(request: ChatRequest, onChunk: (chunk: string) => void): Promise<void> {
+  async sendChatStream(request: { messages: Message[]; selected_file_ids?: string[] }, onChunk: (chunk: string) => void): Promise<void> {
     this.abortController = new AbortController();
 
     try {
