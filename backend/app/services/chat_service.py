@@ -74,7 +74,7 @@ def cut_into_context_window(
     for msg in mandatory_messages:
         tokens = count_tokens(msg["content"])
         if current_tokens + tokens < SAFE_LIMIT:
-            final_context.append(msg)
+            final_context.insert(0, msg)
             current_tokens += tokens
         else:
             return final_context
@@ -110,8 +110,9 @@ def cut_into_context_window(
 
 
 def get_llm_formatted_messages(messages : List[Message]) -> List[Dict[str, str]]:
-    llm_formatted_messages = [{"role": "system", "content": ROLE_LLM_PROMPT}]
+    llm_formatted_messages = []
     for m in messages:
         llm_formatted_messages.append({"role": m.role.value, "content": m.text})
 
+    llm_formatted_messages.append({"role": "system", "content": ROLE_LLM_PROMPT})
     return llm_formatted_messages
