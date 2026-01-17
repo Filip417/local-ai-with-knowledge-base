@@ -13,7 +13,7 @@ from chromadb import QueryResult
 
 def clear_documents_collection():
     """
-    Deletes and recreates the collection to clear all data.
+    Deletes the collection to clear all data.
     """
     try:
         chroma_client.delete_collection(name=VECTOR_DB_COLLECTION_NAME)
@@ -24,16 +24,13 @@ def clear_documents_collection():
 
 def add_documents(document_content: str, file_id: Optional[UUID]):
     """
-    Adds text chunks to the vector database with optional file ID tracking.
+    Adds text to the vector database with file ID tracking.
     If file_id is provided, it will be used as the document ID.
     """
-    if not document_content:
+    if not document_content or not file_id:
         return False
     
-    if file_id:
-        doc_id = str(file_id)
-    else:
-        return False
+    doc_id = str(file_id)
     
     collection = chroma_client.get_or_create_collection(name=VECTOR_DB_COLLECTION_NAME)
     collection.add(
@@ -45,34 +42,20 @@ def add_documents(document_content: str, file_id: Optional[UUID]):
 
 
 def get_results_from_vector_db(
-        query_texts: List[Message],
+        last_user_message: Message,
         selected_file_ids: Optional[List[UUID]] = None) -> QueryResult | None:
     """
-    Returns results from chroma db query, optionally filtered by selected file IDs.
-    
-    Args:
-        query_texts: List of Message objects to query
-        results_to_return: Number of results to return per query
-        selected_file_ids: Optional list of file UUIDs to filter results by
+    Returns results from chroma db query, filtered by selected file IDs.
     """
     if not selected_file_ids:
         return None
-    formatted_query_texts = []
-
-    for m in reversed(query_texts):
-        # Optionally to limit amount of messages to only last x in reverse order
-        # Optionally to also include assistant messages
-        if m.role == Role.user:
-            formatted_query_texts.append(m.text)
 
     collection = chroma_client.get_or_create_collection(name=VECTOR_DB_COLLECTION_NAME)
-    
-    # Build where filter if specific files are selected
+
     kwargs = {
-        "query_texts": formatted_query_texts,
-        "n_results": 100,
+        "query_texts": [last_user_message.text],
+        "n_results": 10,
     }
-    
     file_id_strs = [str(fid) for fid in selected_file_ids]
     kwargs["where"] = {"file_id": {"$in": file_id_strs}}
     results = collection.query(**kwargs)

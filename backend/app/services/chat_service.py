@@ -21,7 +21,7 @@ async def handle_query_stream(
         max_tokens: int = MAX_OUTPUT_TOKENS) -> AsyncGenerator[str, None]:
     
     llm_formatted_messages = get_llm_formatted_messages(messages)
-    knowledge_base_the_most_relevant = get_results_from_vector_db(messages, selected_file_ids)
+    knowledge_base_the_most_relevant = get_results_from_vector_db(messages[-1], selected_file_ids)
     prompt_messages = cut_into_context_window(
         llm_formatted_messages,
         knowledge_base_the_most_relevant,
@@ -102,14 +102,13 @@ def cut_into_context_window(
             "content": f"Relevant context from database:\n{context_str}"
         })
 
-    # Reverse 
-    print(f"{final_context[::-1]=}")
-    return final_context[::-1]
+    print(f"{final_context=}")
+    return final_context
 
 
 def get_llm_formatted_messages(messages : List[Message]) -> List[Dict[str, str]]:
     llm_formatted_messages = [{"role": "system", "content": ROLE_LLM_PROMPT}]
     for m in messages:
-        llm_formatted_messages.insert(0, {"role": m.role.value, "content": m.text})
+        llm_formatted_messages.append({"role": m.role.value, "content": m.text})
 
     return llm_formatted_messages
