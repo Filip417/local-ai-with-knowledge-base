@@ -1,4 +1,4 @@
-<div #sourcesContainer class="sources" role="region" aria-label="Sources management">
+<div #sourcesContainer class="sources panel-component" role="region" aria-label="Sources management">
   <div class="panel-header">Sources</div>
   <app-sources-list [sources]="sources()" (deleteSource)="deleteFile($event)"></app-sources-list>
   <app-sources-input (upload)="uploadFiles($event)" (clear)="clearSources()"></app-sources-input>

@@ -1,8 +1,0 @@
-.sources {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  background: var(--color-bg);
-  height: 100%;
-  border-radius: var(--spacing);
-}
