@@ -1,4 +1,4 @@
-<div class="chat-messages" #messagesContainer>
+<div class="chat-messages panel-inside" #messagesContainer>
   
   <ng-container *ngIf="messages.length > 0; else welcomeState">
     <div class="message" *ngFor="let m of messages" [ngClass]="m.role">
@@ -9,7 +9,7 @@
   </ng-container>
 
   <ng-template #welcomeState>
-    <div class="welcome-container">
+    <div class="welcome-container empty-state">
       <h3>Hello!</h3>
       <p>Start a conversation by typing a message below.</p>
     </div>

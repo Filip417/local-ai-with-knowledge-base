@@ -1,11 +1,11 @@
-<div class="chat-input">
+<div class="input-panel">
   <textarea #msgInput (input)="0" placeholder="Ask something..." (keydown.enter)="onEnter($any($event), msgInput)" aria-label="Message"></textarea>
   <div class="btn-div">
   <button aria-label="Send" title="Send" [disabled]="!msgInput.value.trim()" (click)="sendPrompt(msgInput.value); msgInput.value='';" class="send-btn">
     <!-- Paper plane icon -->
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 2L11 13"></path><path d="M22 2L15 22l-4-9-9-4 20-7z"></path></svg>
   </button>
-  <button aria-label="Clear" title="Clear" (click)="clearChatHistory(); msgInput.value='';" class="clear-btn">
+  <button aria-label="Clear" title="Clear" (click)="clearChatHistory(); msgInput.value='';" class="delete-btn">
     <!-- Trash can icon -->
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
       <polyline points="3 6 5 6 21 6"></polyline>

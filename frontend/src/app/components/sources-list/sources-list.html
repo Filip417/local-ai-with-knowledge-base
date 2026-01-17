@@ -1,7 +1,7 @@
-<div class="sources-list" role="list">
+<div class="sources-list panel-inside" role="list">
   
   <ng-container *ngIf="sources.length > 0; else emptyState">
-    <div class="select-all-item">
+    <div class="select-all-item item-common-pattern">
       <label class="checkbox-label" (click)="toggleSelectAll()">
         <input 
           type="checkbox" 
@@ -28,7 +28,7 @@
       </button>
     </div>
 
-    <div class="source-item" (click)="openModal(source.name)" *ngFor="let source of sources" role="listitem">
+    <div class="source-item item-common-pattern" (click)="openModal(source.name)" *ngFor="let source of sources" role="listitem">
       <label class="checkbox-label" (click)="$event.stopPropagation()">
         <input 
           type="checkbox" 
@@ -56,7 +56,7 @@
   </ng-container>
 
   <ng-template #emptyState>
-    <div class="empty-container">
+    <div class="empty-container empty-state">
       <h3>No sources yet</h3>
       <p>Upload files below to add them to your knowledge base.</p>
     </div>

@@ -1,14 +1,5 @@
-.sources-list {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing);
-  padding: var(--spacing);
-  scroll-behavior: smooth;
-  overflow-y: auto;
-  max-height: calc(100vh - var(--header-height) - var(--input-height) - 11 * var(--spacing));
-}
 
-.select-all-container {
+.item-common-pattern {
   padding: 8px 12px;
   background: var(--color-surface);
   border-radius: 8px;
@@ -19,21 +10,12 @@
 .select-all-item {
   display: flex;
   align-items: center;
-  padding: 8px 12px;
-  background: var(--color-surface);
-  border-radius: 8px;
-  border: 1px solid var(--color-border);
   gap: 12px;
-  margin-bottom: 4px;
 }
 
 .source-item {
   display: flex;
   align-items: center;
-  padding: 8px 12px;
-  background: var(--color-surface);
-  border-radius: 8px;
-  border: 1px solid var(--color-border);
   gap: 12px;
   transition: all 0.2s ease;
   color: var(--color-text);
@@ -79,52 +61,4 @@
   height: 32px;
   display: flex;
   align-items: center;
-}
-
-
-.delete-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  background: transparent;
-  border: 1px solid var(--color-border);
-  border-radius: 6px;
-  color: var(--color-text-muted);
-  cursor: pointer;
-  transition: all 0.2s ease;
-  flex-shrink: 0;
-  padding: 0;
-}
-
-.delete-btn:hover {
-  background: var(--color-delete);
-  border-color: var(--color-delete);
-  color: #ffffff;
-}
-
-.delete-btn:active {
-  transform: scale(0.95);
-}
-
-.empty-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 200px;
-  color: var(--color-text-muted);
-  text-align: center;
-}
-
-.empty-container h3 {
-  margin: 0 0 8px 0;
-  font-size: 1.1rem;
-  color: var(--color-text);
-}
-
-.empty-container p {
-  margin: 0;
-  font-size: 0.9rem;
 }

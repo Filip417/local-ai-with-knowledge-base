@@ -56,3 +56,84 @@ body {
   height: 100%;
   border-radius: var(--spacing);
 }
+
+.panel-inside {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing);
+  padding: var(--spacing);
+  scroll-behavior: smooth;
+  max-width: var(--chat-width);
+  overflow-y: auto;
+  max-height: calc(100vh - var(--header-height) - var(--input-height) - 11 * var(--spacing));
+}
+
+button {
+  padding: 8px 12px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+button:active {
+  transform: scale(0.75);
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  filter: grayscale(1);
+}
+
+svg { width: 18px; height: 18px; display: block; }
+
+.delete-btn {
+  color: var(--color-text);
+}
+
+.delete-btn:hover {
+  background: var(--color-delete);
+  border-color: var(--color-delete);
+  color: var(--color-text-muted);
+}
+
+.send-btn {
+  color: var(--color-text);
+  background: linear-gradient(180deg, var(--color-accent-gradient-start) 0%, var(--color-accent-gradient-end) 100%);
+}
+
+.input-panel {
+  display: flex;
+  gap: 8px;
+  padding: var(--spacing);
+  z-index: 10;
+  max-width: var(--chat-width);
+  margin: 0 auto;
+  height: var(--input-height);
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: var(--color-text-muted);
+  padding: 20px;
+}
+
+.empty-state h3 {
+  margin: 0 0 8px 0;
+  font-size: 1.1rem;
+  color: var(--color-text);
+}
+
+.empty-state p {
+  margin: 0;
+  font-size: 0.9rem;
+}
