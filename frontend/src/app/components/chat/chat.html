@@ -1,4 +1,4 @@
-<div #chatContainer class="chat panel-component" role="log" aria-live="polite">
+<div #chatContainer class="panel-component" role="log" aria-live="polite">
   <div class="panel-header">Chat</div>
   <app-chat-messages [messages]="messages()"></app-chat-messages>
   <app-chat-input (send)="sendPrompt($event)" (clear)="clearChatHistory()"></app-chat-input>
