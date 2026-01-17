@@ -1,6 +1,3 @@
-"""
-Centralized database client initialization to avoid circular imports.
-"""
 import chromadb
 from app.core.config import VECTOR_DB_COLLECTION_NAME
 
