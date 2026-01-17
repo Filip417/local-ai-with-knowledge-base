@@ -33,17 +33,6 @@ class FileRepository:
         self._file_path_index[file.path] = file.id
         return file
 
-    def get_by_id(self, file_id: UUID) -> Optional[File]:
-        """Retrieve a file by its ID."""
-        return self._files.get(file_id)
-
-    def get_by_path(self, file_path: str) -> Optional[File]:
-        """Retrieve a file by its path."""
-        file_id = self._file_path_index.get(file_path)
-        if file_id:
-            return self._files.get(file_id)
-        return None
-
     def get_by_name(self, file_name: str) -> File | None:
         """Retrieve all files matching a filename."""
         for f in self._files.values():
@@ -54,19 +43,7 @@ class FileRepository:
     def get_all(self) -> List[File]:
         """Retrieve all files."""
         return list(self._files.values())
-
-    def update(self, file_id: UUID, **kwargs) -> Optional[File]:
-        """Update file metadata."""
-        file = self._files.get(file_id)
-        if not file:
-            return None
-        
-        # Create updated file with new values
-        updated_file = file.model_copy(update=kwargs)
-        self._files[file_id] = updated_file
-        
-        return updated_file
-
+    
     def delete(self, file : File) -> bool:
         """Delete a file from the repository."""
         delete_file_from_vector_db(file.id)
@@ -81,13 +58,36 @@ class FileRepository:
         self._files.clear()
         self._file_path_index.clear()
 
-    def exists(self, file_id: UUID) -> bool:
-        """Check if a file exists by ID."""
-        return file_id in self._files
+    # def get_by_id(self, file_id: UUID) -> Optional[File]:
+    #     """Retrieve a file by its ID."""
+    #     return self._files.get(file_id)
 
-    def exists_by_path(self, file_path: str) -> bool:
-        """Check if a file exists by path."""
-        return file_path in self._file_path_index
+    # def get_by_path(self, file_path: str) -> Optional[File]:
+    #     """Retrieve a file by its path."""
+    #     file_id = self._file_path_index.get(file_path)
+    #     if file_id:
+    #         return self._files.get(file_id)
+    #     return None
+
+    # def update(self, file_id: UUID, **kwargs) -> Optional[File]:
+    #     """Update file metadata."""
+    #     file = self._files.get(file_id)
+    #     if not file:
+    #         return None
+        
+    #     # Create updated file with new values
+    #     updated_file = file.model_copy(update=kwargs)
+    #     self._files[file_id] = updated_file
+        
+    #     return updated_file
+
+    # def exists(self, file_id: UUID) -> bool:
+    #     """Check if a file exists by ID."""
+    #     return file_id in self._files
+
+    # def exists_by_path(self, file_path: str) -> bool:
+    #     """Check if a file exists by path."""
+    #     return file_path in self._file_path_index
 
 
 # Global instance for singleton pattern
