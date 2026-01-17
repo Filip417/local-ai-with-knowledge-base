@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.api.chat import router as chat_router
-from app.api.file import router as vector_db_router
+from app.api.file import router as file_router
 import uvicorn
 
 app = FastAPI()
@@ -16,6 +16,6 @@ app.add_middleware(
 
 # Mount routers
 app.include_router(chat_router, prefix="/api/v1", tags=["chat"])
-app.include_router(vector_db_router, prefix="/api/v1", tags=["vector_db"])
+app.include_router(file_router, prefix="/api/v1", tags=["file"])
 
 uvicorn.run(app, host="0.0.0.0", port=8000)

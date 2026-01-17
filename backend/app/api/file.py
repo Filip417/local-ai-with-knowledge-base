@@ -9,7 +9,7 @@ router = APIRouter()
 @router.post("/file")
 async def upload_source_text_file(file: UploadFile = File(...)):
     """
-    Accepts only .txt files, saves them to backend/data,
+    Accepts only .txt files, saves them to backend/sources,
     reads their content, and stores it in ChromaDB with file ID tracking.
     """
     # Ensure we have a filename
@@ -105,9 +105,9 @@ async def clear_file_collection_in_vector_db():
 
 
 @router.delete("/file")
-async def delete_file_from_data_folder_and_vector_db(filename: str = Query(...)):
+async def delete_file_from_sources_folder_and_vector_db(filename: str = Query(...)):
     """
-    Deletes a file from both the backend/data folder and the vector database
+    Deletes a file from both the backend/sourcesfolder and the vector database
     """
     if not filename:
         raise HTTPException(status_code=400, detail="Missing filename.")
