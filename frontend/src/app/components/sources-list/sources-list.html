@@ -28,7 +28,7 @@
       </button>
     </div>
 
-    <div class="source-item" (click)="openModal(source.file_name)" *ngFor="let source of sources" role="listitem">
+    <div class="source-item" (click)="openModal(source.name)" *ngFor="let source of sources" role="listitem">
       <label class="checkbox-label" (click)="$event.stopPropagation()">
         <input 
           type="checkbox" 
@@ -37,10 +37,10 @@
           class="checkbox-input"
         />
       </label>
-      <span class="source-name">{{ source.file_name }}</span>
+      <span class="source-name">{{ source.name }}</span>
       <button 
         class="delete-btn" 
-        (click)="deleteSelectedSource(source.file_name, $event)"
+        (click)="deleteSelectedSource(source.name, $event)"
         aria-label="Delete source"
         title="Delete source"
       >

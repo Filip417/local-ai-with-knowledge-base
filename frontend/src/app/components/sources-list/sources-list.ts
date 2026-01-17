@@ -60,7 +60,7 @@ export class SourcesList implements OnChanges {
 
   deleteSelectedSource(filename: string, event: Event) {
     event.stopPropagation();
-    const source = this.sources.find(s => s.file_name === filename);
+    const source = this.sources.find(s => s.name === filename);
     if (source) {
       this.selectedSources.delete(source.id);
     }
@@ -74,7 +74,7 @@ export class SourcesList implements OnChanges {
     const filenamesToDelete: string[] = [];
     this.sources.forEach(source => {
       if (this.selectedSources.has(source.id)) {
-        filenamesToDelete.push(source.file_name);
+        filenamesToDelete.push(source.name);
       }
     });
     filenamesToDelete.forEach(source => {

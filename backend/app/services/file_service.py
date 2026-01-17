@@ -3,7 +3,7 @@ import uuid
 import os
 import shutil
 from uuid import UUID
-from app.main import chroma_client
+from app.core.database import chroma_client
 from app.core.config import VECTOR_DB_COLLECTION_NAME
 from app.core.enums import Role
 from app.models.message import Message

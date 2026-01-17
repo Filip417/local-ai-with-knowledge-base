@@ -1,18 +1,11 @@
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import StreamingResponse
 from app.services.chat_service import handle_query_stream
-from app.models.message import Message
-from typing import List, Optional
 from uuid import UUID
-from pydantic import BaseModel
+from app.models.chat_request import ChatRequest
+
 
 router = APIRouter()
-
-
-class ChatRequest(BaseModel):
-    messages: List[Message]
-    selected_file_ids: Optional[List[str]] = None
-
 
 @router.post("/chat")
 async def chat_endpoint(request: ChatRequest):

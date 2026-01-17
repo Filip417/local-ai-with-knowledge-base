@@ -42,7 +42,7 @@ export class Sources implements OnInit {
   async uploadFiles(files: File[]) {
     if (this.isUploading() || !files?.length) return;
 
-    const existingNames = new Set(this.sources().map(s => s.file_name));
+    const existingNames = new Set(this.sources().map(s => s.name));
     const uniqueFiles: File[] = [];
     const newFileNames: string[] = [];
 
@@ -69,7 +69,7 @@ export class Sources implements OnInit {
       
       // Auto-select newly uploaded files
       const newFileIds = this.sources()
-        .filter(s => newFileNames.includes(s.file_name))
+        .filter(s => newFileNames.includes(s.name))
         .map(s => s.id);
       
       this.selectedFileIds.update(ids => [...ids, ...newFileIds]);
@@ -106,9 +106,9 @@ export class Sources implements OnInit {
       });
 
       if (response.ok) {
-        this.sources.update(arr => arr.filter(s => s.file_name !== filename));
+        this.sources.update(arr => arr.filter(s => s.name !== filename));
         this.selectedFileIds.update(ids => ids.filter(id => {
-          const file = this.sources().find(s => s.file_name === filename);
+          const file = this.sources().find(s => s.name === filename);
           return file ? id !== file.id : true;
         }));
       } else {

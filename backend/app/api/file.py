@@ -9,13 +9,14 @@ router = APIRouter()
 @router.post("/file")
 async def upload_source_text_file(file: UploadFile = File(...)):
     """
-    Accepts only .txt files, saves them to backend/sources,
+    Saves file to backend/sources directory,
     reads their content, and stores it in ChromaDB with file ID tracking.
     """
     # Ensure we have a filename
     if not file or not file.filename:
         raise HTTPException(status_code=400, detail="Missing file or filename.")
 
+    print(f"content type: {file.content_type}")
     # Validate file type extension
     supported_formats = ["txt"]
     file_extension = file.filename.split(".")[-1].lower()
@@ -24,18 +25,19 @@ async def upload_source_text_file(file: UploadFile = File(...)):
             detail=f"Only {supported_formats} text files formats are accepted.")
     
     new_file = FileModel(
-        file_name=file.filename,
-        file_path='tbc',
-        file_extension=file_extension,
-        file_size_bytes=0
+        name=file.filename,
+        path='None',
+        extension=file_extension,
+        size_bytes=0,
+        content_type=file.content_type
     )
 
     try:
         repo = get_file_repository()
         repo.create(new_file, upload_file=file, file_extension=file_extension)
         return {
-            "message": f"File '{file.filename}' uploaded successfully.",
-            "type": file.content_type,
+            "message": f"File '{new_file.name}' uploaded successfully.",
+            "type": new_file.content_type,
             "file_id": str(new_file.id)
         }
     except:
@@ -53,11 +55,11 @@ async def get_all_files():
         "files": [
             {
                 "id": str(f.id),
-                "file_name": f.file_name,
-                "file_path": f.file_path,
-                "file_extension": f.file_extension,
-                "file_size_bytes": f.file_size_bytes,
-                "is_in_vector_db": f.is_in_vector_db
+                "name": f.name,
+                "path": f.path,
+                "extension": f.extension,
+                "size_bytes": f.size_bytes,
+                "content_type" : f.content_type,
             }
             for f in files
         ]
@@ -79,13 +81,13 @@ async def get_file_content(filename: str = Query(...)):
     
     file_record = files[0]
     
-    if (file_record.file_extension == 'txt'):
+    if (file_record.extension == 'txt'):
         try:
             def iterfile():
-                with open(file_record.file_path, 'r', encoding='utf-8') as f:
+                with open(file_record.path, 'r', encoding='utf-8') as f:
                     yield from f
             
-            return StreamingResponse(iterfile(), media_type="text/plain")
+            return StreamingResponse(iterfile(), media_type=file_record.content_type)
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Error reading file: {str(e)}")
 

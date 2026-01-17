@@ -22,16 +22,15 @@ class FileRepository:
         if file.id in self._files:
             raise ValueError(f"File with ID {file.id} already exists.")
 
-        file.file_size_bytes = upload_file.size if upload_file.size is not None else 0
+        file.size_bytes = upload_file.size if upload_file.size is not None else 0
         saved_path = save_or_reuse_data_file(upload_file)
         
         if saved_path:
-            file.file_path = saved_path
+            file.path = saved_path
             upload_file_to_vector_db(saved_path, file_extension=file_extension, file_id=file.id)
-            file.is_in_vector_db = True
         
         self._files[file.id] = file
-        self._file_path_index[file.file_path] = file.id
+        self._file_path_index[file.path] = file.id
         return file
 
     def get_by_id(self, file_id: UUID) -> Optional[File]:
@@ -47,15 +46,11 @@ class FileRepository:
 
     def get_by_name(self, file_name: str) -> List[File]:
         """Retrieve all files matching a filename."""
-        return [f for f in self._files.values() if f.file_name == file_name]
+        return [f for f in self._files.values() if f.name == file_name]
 
     def get_all(self) -> List[File]:
         """Retrieve all files."""
         return list(self._files.values())
-
-    def get_in_vector_db(self) -> List[File]:
-        """Retrieve all files that are in the vector database."""
-        return [f for f in self._files.values() if f.is_in_vector_db]
 
     def update(self, file_id: UUID, **kwargs) -> Optional[File]:
         """Update file metadata."""
@@ -69,20 +64,12 @@ class FileRepository:
         
         return updated_file
 
-    def mark_in_vector_db(self, file_id: UUID) -> Optional[File]:
-        """Mark a file as being in the vector database."""
-        return self.update(file_id, is_in_vector_db=True)
-
-    def mark_not_in_vector_db(self, file_id: UUID) -> Optional[File]:
-        """Mark a file as not being in the vector database."""
-        return self.update(file_id, is_in_vector_db=False)
-
     def delete(self, file : File) -> bool:
         """Delete a file from the repository."""
         delete_file_from_vector_db(file.id)
-        delete_file_from_disk(file.file_name)
+        delete_file_from_disk(file.name)
         del self._files[file.id]
-        self._file_path_index.pop(file.file_path, None)
+        self._file_path_index.pop(file.path, None)
         return True
 
     def delete_all(self) -> None:
