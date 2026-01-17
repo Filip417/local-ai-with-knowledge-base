@@ -1,17 +1,17 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { ApiService } from './api.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class FileService {
-  private apiUrl = 'http://localhost:8000/api/v1/file-content';
-
-  constructor(private http: HttpClient) { }
+  private http = inject(HttpClient);
+  private apiService = inject(ApiService);
 
   getFileContent(filename: string): Observable<string> {
-    return this.http.get(this.apiUrl, {
+    return this.http.get(this.apiService.endpoints.fileContent, {
       params: { filename },
       responseType: 'text'
     });

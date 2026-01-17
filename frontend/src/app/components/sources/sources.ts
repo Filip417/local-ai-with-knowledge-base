@@ -1,8 +1,9 @@
-import { Component, ElementRef, EventEmitter, OnInit, Output, signal, ViewChild } from '@angular/core';
+import { Component, ElementRef, EventEmitter, inject, OnInit, Output, signal, ViewChild } from '@angular/core';
 import { SourcesHeader } from '../sources-header/sources-header';
 import { SourcesList } from '../sources-list/sources-list';
 import { SourcesInput } from '../sources-input/sources-input';
 import { FileModel } from '../../models/file';
+import { ApiService } from '../../services/api.service';
 
 @Component({
   selector: 'app-sources',
@@ -12,14 +13,13 @@ import { FileModel } from '../../models/file';
   styleUrls: ['./sources.css']
 })
 export class Sources implements OnInit {
+  private apiService = inject(ApiService);
+  
   @Output() selectionChanged = new EventEmitter<string[]>();
   sources = signal<FileModel[]>([]);
   selectedFileIds = signal<string[]>([]);
   isUploading = signal(false);
   @ViewChild('sourcesContainer') sourcesContainer?: ElementRef<HTMLElement>;
-
-  private readonly ENDPOINT_URL = 'http://localhost:8000/api/v1/file';
-  private readonly FILES_ENDPOINT_URL = 'http://localhost:8000/api/v1/files';
 
   async ngOnInit() {
     await this.loadFiles();
@@ -27,7 +27,7 @@ export class Sources implements OnInit {
 
   async loadFiles() {
     try {
-      const response = await fetch(this.FILES_ENDPOINT_URL);
+      const response = await fetch(this.apiService.endpoints.files);
       if (response.ok) {
         const data = await response.json();
         this.sources.set(data.files || []);
@@ -86,7 +86,7 @@ export class Sources implements OnInit {
       const formData = new FormData();
       formData.append('file', file);
 
-      const response = await fetch(this.ENDPOINT_URL, {
+      const response = await fetch(this.apiService.endpoints.file, {
         method: 'POST',
         body: formData
       });
@@ -101,7 +101,7 @@ export class Sources implements OnInit {
 
   async deleteFile(filename: string) {
     try {
-      const response = await fetch(`${this.ENDPOINT_URL}?filename=${encodeURIComponent(filename)}`, {
+      const response = await fetch(`${this.apiService.endpoints.file}?filename=${encodeURIComponent(filename)}`, {
         method: 'DELETE'
       });
 
@@ -126,7 +126,7 @@ export class Sources implements OnInit {
 
   async clearSources() {
     try {
-      const response = await fetch(this.FILES_ENDPOINT_URL, {
+      const response = await fetch(this.apiService.endpoints.files, {
         method: 'DELETE'
       });
       if (response.ok) {

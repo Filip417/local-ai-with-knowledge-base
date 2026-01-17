@@ -1,9 +1,10 @@
-import { Component, effect, ElementRef, Input, signal, ViewChild } from '@angular/core';
+import { Component, effect, ElementRef, inject, Input, signal, ViewChild } from '@angular/core';
 import { ChatHeader } from '../chat-header/chat-header';
 import { ChatMessages } from '../chat-messages/chat-messages';
 import { ChatInput } from '../chat-input/chat-input';
 import { Message, Role } from '../../models/message';
 import { ChatRequest } from '../../models/chat-request';
+import { ApiService } from '../../services/api.service';
 
 @Component({
   selector: 'app-chat',
@@ -13,6 +14,8 @@ import { ChatRequest } from '../../models/chat-request';
   styleUrls: ['./chat.css']
 })
 export class Chat {
+  private apiService = inject(ApiService);
+  
   @Input() selectedFileIds: string[] = [];
   messages = signal<Message[]>([]);
   isSending = signal(false);
@@ -30,7 +33,6 @@ export class Chat {
   }
 
   private abortController: AbortController | null = null;
-  private readonly ENDPOINT_URL = 'http://localhost:8000/api/v1/chat';
 
   async sendPrompt(msg: string) {
     const text = msg.trim();
@@ -58,7 +60,7 @@ export class Chat {
         selected_file_ids: this.selectedFileIds.length > 0 ? this.selectedFileIds : undefined
       };
 
-      const response = await fetch(this.ENDPOINT_URL, {
+      const response = await fetch(this.apiService.endpoints.chat, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(requestBody),
@@ -96,7 +98,7 @@ export class Chat {
           updated[lastIndex] = { 
             ...updated[lastIndex], 
             text: `There has been an error connecting to the LLM model 
-            - verify if backend endpoint is working: ${this.ENDPOINT_URL}` 
+            - verify if backend endpoint is working: ${this.apiService.endpoints.chat}` 
           };
           return updated;
         });
