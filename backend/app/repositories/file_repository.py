@@ -44,9 +44,12 @@ class FileRepository:
             return self._files.get(file_id)
         return None
 
-    def get_by_name(self, file_name: str) -> List[File]:
+    def get_by_name(self, file_name: str) -> File | None:
         """Retrieve all files matching a filename."""
-        return [f for f in self._files.values() if f.name == file_name]
+        for f in self._files.values():
+            if f.name == file_name:
+                return f
+        return None
 
     def get_all(self) -> List[File]:
         """Retrieve all files."""

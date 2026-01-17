@@ -10,7 +10,7 @@ from app.models.message import Message
 from fastapi import UploadFile
 from chromadb import QueryResult
 
-# Init functions
+
 def clear_documents_collection():
     """
     Deletes and recreates the collection to clear all data.
@@ -158,3 +158,10 @@ def delete_file_from_vector_db(file_id: UUID):
     except Exception as e:
         print(f"Error deleting file from vector db: {e}")
         return False
+
+
+
+def handle_file_stream(file):
+    if (file.extension == 'txt'):
+        with open(file.path, 'r', encoding='utf-8') as f:
+            yield from f

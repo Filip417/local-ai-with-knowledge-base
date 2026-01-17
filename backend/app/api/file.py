@@ -2,9 +2,11 @@ from fastapi import APIRouter, HTTPException, UploadFile, Query, File
 from fastapi.responses import StreamingResponse
 from app.models.file import File as FileModel
 from app.repositories import get_file_repository
+from app.services.file_service import handle_file_stream
 
 
 router = APIRouter()
+
 
 @router.post("/file")
 async def upload_source_text_file(file: UploadFile = File(...)):
@@ -75,21 +77,19 @@ async def get_file_content(filename: str = Query(...)):
         raise HTTPException(status_code=400, detail="Missing filename.")
     
     repo = get_file_repository()
-    files = repo.get_by_name(filename)
-    if not files:
+    file = repo.get_by_name(filename)
+    if not file:
         raise HTTPException(status_code=404, detail=f"File '{filename}' not found.")
     
-    file_record = files[0]
-    
-    if (file_record.extension == 'txt'):
-        try:
-            def iterfile():
-                with open(file_record.path, 'r', encoding='utf-8') as f:
-                    yield from f
-            
-            return StreamingResponse(iterfile(), media_type=file_record.content_type)
-        except Exception as e:
-            raise HTTPException(status_code=500, detail=f"Error reading file: {str(e)}")
+    return StreamingResponse(
+        handle_file_stream(file),
+        media_type="text/plain",
+        headers={
+            "X-Accel-Buffering": "no",
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+        }
+    )
 
 
 @router.delete("/files")
@@ -103,7 +103,6 @@ async def clear_file_collection_in_vector_db():
         return {"message": "Vector collection cleared successfully."}
     except:
         raise HTTPException(status_code=500, detail=f"Failed to clear collection")
-    
 
 
 @router.delete("/file")
@@ -115,20 +114,18 @@ async def delete_file_from_sources_folder_and_vector_db(filename: str = Query(..
         raise HTTPException(status_code=400, detail="Missing filename.")
     
     repo = get_file_repository()
-    files = repo.get_by_name(filename)
-    if not files:
+    file = repo.get_by_name(filename)
+    if not file:
         return {
             "message": f"File '{filename}' not found in repository.",
             "file_id": str(-1)
         }
     
-    file_record = files[0]
-
     try:
-        repo.delete(file_record)
+        repo.delete(file)
         return {
             "message": f"File '{filename}' deleted successfully.",
-            "file_id": str(file_record.id)
+            "file_id": str(file.id)
         }
     except:
         raise HTTPException(status_code=404, detail=f"File '{filename}' not found.")

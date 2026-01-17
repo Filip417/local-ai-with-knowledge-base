@@ -7,6 +7,7 @@ from app.models.chat_request import ChatRequest
 
 router = APIRouter()
 
+
 @router.post("/chat")
 async def chat_endpoint(request: ChatRequest):
     """
