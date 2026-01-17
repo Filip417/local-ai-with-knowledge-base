@@ -1,9 +1,16 @@
+<header class="app-header">
+  <div class="header-content">
+    <h1 class="app-title">Local AI Chat</h1>
+    <button class="settings-btn" aria-label="Settings">
+      ⚙️
+    </button>
+  </div>
+</header>
 
-<app-header></app-header>
 
 <div class="column-container">
-    <app-sources (selectionChanged)="onSelectionChanged($event)"></app-sources>
-    <app-chat [selectedFileIds]="selectedFileIds()"></app-chat>
+    <app-sources></app-sources>
+    <app-chat></app-chat>
 </div>
 
 <router-outlet></router-outlet>

@@ -1,16 +1,23 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { lastValueFrom } from 'rxjs';
 import { ApiService } from './api.service';
 import { FileModel } from '../models/file';
 
 /**
  * SourcesService encapsulates all HTTP logic for file/source operations.
  * Handles loading, uploading, and deleting files from the backend.
+ * Also manages centralized file selection state.
  */
 @Injectable({
   providedIn: 'root'
 })
 export class SourcesService {
   private apiService = inject(ApiService);
+  private http = inject(HttpClient);
+  
+  // Centralized selection state
+  readonly selectedFileIds = signal<string[]>([]);
 
   /**
    * Fetches all uploaded files from the backend.
@@ -18,13 +25,9 @@ export class SourcesService {
    * @throws Error if the request fails
    */
   async loadFiles(): Promise<FileModel[]> {
-    const response = await fetch(this.apiService.endpoints.files);
-    
-    if (!response.ok) {
-      throw new Error(`Failed to load files: ${response.statusText}`);
-    }
-
-    const data = await response.json();
+    const data = await lastValueFrom(
+      this.http.get<{ files: FileModel[] }>(this.apiService.endpoints.files)
+    );
     return data.files || [];
   }
 
@@ -37,14 +40,9 @@ export class SourcesService {
     const formData = new FormData();
     formData.append('file', file);
 
-    const response = await fetch(this.apiService.endpoints.file, {
-      method: 'POST',
-      body: formData
-    });
-
-    if (!response.ok) {
-      throw new Error(`Upload failed: ${response.statusText}`);
-    }
+    await lastValueFrom(
+      this.http.post(this.apiService.endpoints.file, formData)
+    );
   }
 
   /**
@@ -64,14 +62,9 @@ export class SourcesService {
    * @throws Error if the deletion fails
    */
   async deleteFile(filename: string): Promise<void> {
-    const response = await fetch(
-      `${this.apiService.endpoints.file}?filename=${encodeURIComponent(filename)}`,
-      { method: 'DELETE' }
+    await lastValueFrom(
+      this.http.delete(`${this.apiService.endpoints.file}?filename=${encodeURIComponent(filename)}`)
     );
-
-    if (!response.ok) {
-      throw new Error(`Delete failed: ${response.statusText}`);
-    }
   }
 
   /**
@@ -79,12 +72,35 @@ export class SourcesService {
    * @throws Error if the operation fails
    */
   async clearAllFiles(): Promise<void> {
-    const response = await fetch(this.apiService.endpoints.files, {
-      method: 'DELETE'
-    });
+    await lastValueFrom(
+      this.http.delete(this.apiService.endpoints.files)
+    );
+  }
 
-    if (!response.ok) {
-      throw new Error(`Clear sources failed: ${response.statusText}`);
-    }
+  // Selection management methods
+  getSelectedFileIds(): string[] {
+    return this.selectedFileIds();
+  }
+
+  setSelectedFileIds(ids: string[]): void {
+    this.selectedFileIds.set(ids);
+  }
+
+  addSelectedFileIds(ids: string[]): void {
+    this.selectedFileIds.update(current => [...current, ...ids]);
+  }
+
+  removeSelectedFileId(id: string): void {
+    this.selectedFileIds.update(ids => ids.filter(i => i !== id));
+  }
+
+  toggleSelectedFileId(id: string): void {
+    this.selectedFileIds.update(ids => 
+      ids.includes(id) ? ids.filter(i => i !== id) : [...ids, id]
+    );
+  }
+
+  clearSelectedFileIds(): void {
+    this.selectedFileIds.set([]);
   }
 }

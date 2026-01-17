@@ -1,23 +1,22 @@
-import { Component, effect, ElementRef, inject, Input, signal, ViewChild } from '@angular/core';
-import { ChatHeader } from '../chat-header/chat-header';
+import { Component, effect, ElementRef, inject, signal, ViewChild } from '@angular/core';
 import { ChatMessages } from '../chat-messages/chat-messages';
 import { ChatInput } from '../chat-input/chat-input';
 import { Message, Role } from '../../models/message';
 import { ChatService } from '../../services/chat.service';
 import { ApiService } from '../../services/api.service';
+import { SourcesService } from '../../services/sources.service';
 
 @Component({
   selector: 'app-chat',
   standalone: true,
-  imports: [ChatHeader, ChatMessages, ChatInput],
+  imports: [ChatMessages, ChatInput],
   templateUrl: './chat.html',
   styleUrls: ['./chat.css']
 })
 export class Chat {
   private chatService = inject(ChatService);
   private apiService = inject(ApiService);
-  
-  @Input() selectedFileIds: string[] = [];
+  private sourcesService = inject(SourcesService);
   messages = signal<Message[]>([]);
   isSending = signal(false);
   @ViewChild('chatContainer') chatContainer?: ElementRef<HTMLElement>;
@@ -50,9 +49,10 @@ export class Chat {
     this.addMessage(assistantMsg);
 
     try {
+      const selectedIds = this.sourcesService.getSelectedFileIds();
       const requestBody = {
         messages: messagesToSend,
-        selected_file_ids: this.selectedFileIds.length > 0 ? this.selectedFileIds : undefined
+        selected_file_ids: selectedIds.length > 0 ? selectedIds : undefined
       };
 
       await this.chatService.sendChatStream(requestBody, (chunk: string) => {

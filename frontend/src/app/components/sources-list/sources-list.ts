@@ -1,8 +1,9 @@
-import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges, computed, signal } from '@angular/core';
+import { Component, Input, Output, EventEmitter, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { FileModel } from '../../models/file';
 import { FileContentModal } from '../file-content-modal/file-content-modal';
+import { SourcesService } from '../../services/sources.service';
 
 @Component({
   selector: 'app-sources-list',
@@ -11,14 +12,14 @@ import { FileContentModal } from '../file-content-modal/file-content-modal';
   templateUrl: './sources-list.html',
   styleUrls: ['./sources-list.css'],
 })
-export class SourcesList implements OnChanges {
+export class SourcesList {
+  private sourcesService = inject(SourcesService);
+  
   @Input() sources: FileModel[] = [];
-  @Input() selectedFileIds: string[] = [];
   @Output() deleteSource = new EventEmitter<string>();
   @Output() clear = new EventEmitter<void>();
-  @Output() selectionChanged = new EventEmitter<string[]>();
   
-  selectedSources = signal<string[]>([]);
+  selectedSources = this.sourcesService.selectedFileIds;
   isAllSelected = computed(() => 
     this.sources.length > 0 && 
     this.selectedSources().length === this.sources.length
@@ -26,30 +27,17 @@ export class SourcesList implements OnChanges {
   isModalOpen = signal(false);
   selectedFilename = signal('');
 
-  ngOnChanges(changes: SimpleChanges) {
-    if (changes['selectedFileIds'] && this.selectedFileIds) {
-      this.selectedSources.set(this.selectedFileIds);
-    }
-  }
-
   toggleSelectAll() {
     if (this.isAllSelected()) {
-      this.selectedSources.set([]);
+      this.sourcesService.clearSelectedFileIds();
     } else {
-      this.selectedSources.set(this.sources.map(s => s.id));
+      this.sourcesService.setSelectedFileIds(this.sources.map(s => s.id));
     }
-    this.emitSelectionChange();
   }
 
   toggleSource(sourceId: string, event: Event) {
     event.stopPropagation();
-    const current = this.selectedSources();
-    if (current.includes(sourceId)) {
-      this.selectedSources.set(current.filter(id => id !== sourceId));
-    } else {
-      this.selectedSources.set([...current, sourceId]);
-    }
-    this.emitSelectionChange();
+    this.sourcesService.toggleSelectedFileId(sourceId);
   }
 
   isSourceSelected(source: FileModel): boolean {
@@ -58,12 +46,7 @@ export class SourcesList implements OnChanges {
 
   deleteSelectedSource(filename: string, event: Event) {
     event.stopPropagation();
-    const source = this.sources.find(s => s.name === filename);
-    if (source) {
-      this.selectedSources.set(this.selectedSources().filter(id => id !== source.id));
-    }
     this.deleteSource.emit(filename);
-    this.emitSelectionChange();
   }
 
   deleteSelected(event: Event) {
@@ -77,8 +60,6 @@ export class SourcesList implements OnChanges {
     filenamesToDelete.forEach(source => {
       this.deleteSource.emit(source);
     });
-    this.selectedSources.set([]);
-    this.emitSelectionChange();
   }
 
   clearSources() {
@@ -93,9 +74,4 @@ export class SourcesList implements OnChanges {
   closeModal() {
     this.isModalOpen.set(false);
   }
-
-  private emitSelectionChange() {
-    this.selectionChanged.emit(this.selectedSources());
-  }
-
 }

@@ -1,5 +1,4 @@
-import { Component, ElementRef, EventEmitter, inject, OnInit, Output, signal, ViewChild } from '@angular/core';
-import { SourcesHeader } from '../sources-header/sources-header';
+import { Component, ElementRef, inject, OnInit, signal, ViewChild } from '@angular/core';
 import { SourcesList } from '../sources-list/sources-list';
 import { SourcesInput } from '../sources-input/sources-input';
 import { FileModel } from '../../models/file';
@@ -8,16 +7,14 @@ import { SourcesService } from '../../services/sources.service';
 @Component({
   selector: 'app-sources',
   standalone: true,
-  imports: [SourcesHeader, SourcesList, SourcesInput],
+  imports: [SourcesList, SourcesInput],
   templateUrl: './sources.html',
   styleUrls: ['./sources.css']
 })
 export class Sources implements OnInit {
   private sourcesService = inject(SourcesService);
   
-  @Output() selectionChanged = new EventEmitter<string[]>();
   sources = signal<FileModel[]>([]);
-  selectedFileIds = signal<string[]>([]);
   isUploading = signal(false);
   @ViewChild('sourcesContainer') sourcesContainer?: ElementRef<HTMLElement>;
 
@@ -64,8 +61,7 @@ export class Sources implements OnInit {
         .filter(s => newFileNames.includes(s.name))
         .map(s => s.id);
       
-      this.selectedFileIds.update(ids => [...ids, ...newFileIds]);
-      this.selectionChanged.emit(this.selectedFileIds());
+      this.sourcesService.addSelectedFileIds(newFileIds);
     } catch (error) {
       console.error('Error uploading files:', error);
     } finally {
@@ -75,41 +71,24 @@ export class Sources implements OnInit {
 
   async deleteFile(filename: string) {
     try {
+      const fileToDelete = this.sources().find(s => s.name === filename);
       await this.sourcesService.deleteFile(filename);
       this.sources.update(arr => arr.filter(s => s.name !== filename));
-      this.selectedFileIds.update(ids => ids.filter(id => {
-        const file = this.sources().find(s => s.name === filename);
-        return file ? id !== file.id : true;
-      }));
+      if (fileToDelete) {
+        this.sourcesService.removeSelectedFileId(fileToDelete.id);
+      }
     } catch (error) {
       console.error('Error deleting file:', error);
     }
-  }
-
-  onSelectionChanged(selectedIds: string[]) {
-    this.selectedFileIds.set(selectedIds);
-    this.selectionChanged.emit(selectedIds);
   }
 
   async clearSources() {
     try {
       await this.sourcesService.clearAllFiles();
       this.sources.set([]);
-      this.selectedFileIds.set([]);
+      this.sourcesService.clearSelectedFileIds();
     } catch (error) {
       console.error('Error clearing sources:', error);
     }
-  }
-
-  toggleFileSelection(fileId: string) {
-    this.selectedFileIds.update(ids => 
-      ids.includes(fileId) 
-        ? ids.filter(id => id !== fileId)
-        : [...ids, fileId]
-    );
-  }
-
-  isFileSelected(fileId: string): boolean {
-    return this.selectedFileIds().includes(fileId);
   }
 }
