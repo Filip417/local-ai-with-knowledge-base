@@ -40,13 +40,12 @@ export class Chat {
     this.abortController = new AbortController();
     this.isSending.set(true);
 
-    this.addMessage({ id: crypto.randomUUID(), role: Role.User, text, timestamp: new Date().toISOString() });
+    this.addMessage({ role: Role.User, text, timestamp: new Date().toISOString() });
     
     // Send messages excluding the assistant placeholder
     const messagesToSend = this.messages();
     
     const assistantMsg: Message = { 
-      id: crypto.randomUUID(),
       role: Role.Assistant, 
       text: '', 
       timestamp: new Date().toISOString() 
