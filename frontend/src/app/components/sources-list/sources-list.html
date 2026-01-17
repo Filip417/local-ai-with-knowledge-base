@@ -2,11 +2,11 @@
   
   <ng-container *ngIf="sources.length > 0; else emptyState">
     <div class="select-all-item item-common-pattern">
-      <label class="checkbox-label" (click)="toggleSelectAll()">
+      <label class="checkbox-label">
         <input 
           type="checkbox" 
           [checked]="isAllSelected()" 
-          (change)="toggleSelectAll()"
+          (click)="toggleSelectAll()"
           class="checkbox-input"
         />
         <span class="checkbox-text">Select all sources</span>
