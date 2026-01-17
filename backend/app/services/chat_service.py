@@ -60,7 +60,7 @@ def cut_into_context_window(
         formatted_messages : List[Dict[str, str]],
         knowledge_base_the_most_relevant : QueryResult | None,
         max_tokens: int,
-        number_of_last_messages_to_prioritise : int = 10) -> List[Dict[str, str]]:
+        number_of_last_messages_to_prioritise : int = 5) -> List[Dict[str, str]]:
     
     # Reserve space for the response so the model doesn't cut off mid-sentence
     SAFE_LIMIT = CONTEXT_LIMIT - max_tokens
@@ -73,11 +73,8 @@ def cut_into_context_window(
 
     for msg in mandatory_messages:
         tokens = count_tokens(msg["content"])
-        if current_tokens + tokens < SAFE_LIMIT:
-            final_context.insert(0, msg)
-            current_tokens += tokens
-        else:
-            return final_context
+        final_context.append(msg)
+        current_tokens += tokens
 
     # 2. Knowledge Base (RAG) results
     # Flatten documents from Chroma QueryResult
@@ -100,7 +97,7 @@ def cut_into_context_window(
     
     if valid_docs:
         context_str = "\n---\n".join(valid_docs)
-        final_context.append({
+        final_context.insert(0, {
             "role": "system", 
             "content": f"Relevant context from database:\n{context_str}"
         })
