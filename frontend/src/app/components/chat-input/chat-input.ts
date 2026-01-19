@@ -28,7 +28,6 @@ export class ChatInput {
   }
 
   clearChatHistory() {
-    // emit an event to the parent to clear stored messages and UI
     this.clear.emit();
   }
 }
