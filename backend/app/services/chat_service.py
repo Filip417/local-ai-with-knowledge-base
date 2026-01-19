@@ -2,15 +2,24 @@ from typing import List, Dict, cast, Any, AsyncGenerator, Optional
 from app.models.message import Message
 import asyncio
 from llama_cpp import Llama
+from llama_cpp.llama_cpp import llama_supports_gpu_offload
 from concurrent.futures import ThreadPoolExecutor
 from functools import partial
 from app.services.file_service import get_results_from_vector_db
 from chromadb import QueryResult
-from app.core.config import CONTEXT_LIMIT, MAX_OUTPUT_TOKENS, MODEL_ABSOLUTE_PATH, ROLE_LLM_PROMPT
+from app.core.config import CONTEXT_LIMIT, MAX_OUTPUT_TOKENS, MODEL_ABSOLUTE_PATH, ROLE_LLM_PROMPT, N_GPU_LAYERS, VERBOSE
 from uuid import UUID 
 
 
-llm = Llama(model_path=MODEL_ABSOLUTE_PATH, n_ctx=CONTEXT_LIMIT, n_threads=8)
+# Initialize with GPU support: n_gpu_la$env:CMAKE_ARGS="-DLLAMA_CUDA=on"; pip install llama-cpp-python --upgrade --force-reinstall --no-cache-diryers offloads layers to GPU
+# -1 offloads all layers; adjust based on your VRAM and model size
+llm = Llama(
+    model_path=MODEL_ABSOLUTE_PATH,
+    n_ctx=CONTEXT_LIMIT,
+    n_gpu_layers=N_GPU_LAYERS,  # Enable GPU acceleration
+    verbose=VERBOSE  # Set True for debugging
+)
+print(f"Library compiled with GPU support: {llama_supports_gpu_offload()}")
 executor = ThreadPoolExecutor(max_workers=1) # 1 thread worker for LLM interactions
 model_lock = asyncio.Lock()
 
