@@ -6,6 +6,7 @@
         <markdown [data]="m.text"></markdown>
       </div>
     </div>
+    <app-thinking-indicator *ngIf="isWaitingForFirstResponse"></app-thinking-indicator>
   </ng-container>
 
   <ng-template #welcomeState>

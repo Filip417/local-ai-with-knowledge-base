@@ -19,6 +19,7 @@ export class Chat {
   private sourcesService = inject(SourcesService);
   messages = signal<Message[]>([]);
   isSending = signal(false);
+  isWaitingForFirstResponse = signal(false);
   @ViewChild('chatContainer') chatContainer?: ElementRef<HTMLElement>;
 
   constructor() {
@@ -37,6 +38,7 @@ export class Chat {
     if (this.isSending() || !text) return;
 
     this.isSending.set(true);
+    this.isWaitingForFirstResponse.set(true);
     this.addMessage({ role: Role.User, text, timestamp: new Date().toISOString() });
     
     const messagesToSend = this.messages();
@@ -56,6 +58,7 @@ export class Chat {
       };
 
       await this.chatService.sendChatStream(requestBody, (chunk: string) => {
+        this.isWaitingForFirstResponse.set(false);
         this.messages.update(msgs => {
           const updated = [...msgs];
           const lastIndex = updated.length - 1;
@@ -80,6 +83,7 @@ export class Chat {
       }
     } finally {
       this.isSending.set(false);
+      this.isWaitingForFirstResponse.set(false);
     }
   }
 
