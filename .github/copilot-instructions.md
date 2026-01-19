@@ -9,7 +9,6 @@
 - Core config: `backend/app/core/config.py` (VECTOR_DB_COLLECTION_NAME, CONTEXT_LIMIT, MAX_OUTPUT_TOKENS, MODEL_ABSOLUTE_PATH absolute Windows path); adjust MODEL_ABSOLUTE_PATH if running elsewhere. Vector setup: `backend/app/core/database.py` initializes Chroma client/collection.
 - Services: `backend/app/services/chat_service.py` (wraps llama-cpp, streams chunks, pulls context from vector DB), `backend/app/services/file_service.py` (file ingest to `backend/sources/`, embeddings into Chroma).
 - Frontend: standalone Angular components in `frontend/src/app/...`; services hit `/api/v1/chat`, `/api/v1/file`, `/api/v1/files`, `/api/v1/file-content`. Global styles `frontend/src/styles.css`. Angular configs `angular.json`, `tsconfig*.json`.
-- Tests: Angular uses Vitest via `ng test`. No backend tests present. No GitHub Actions workflows currently in `.github/workflows`.
 
 ## Known dependencies/pitfalls
 - `llama_cpp` is required but not listed in `requirements.txt`; install manually. The bundled model path is absolute to the repo; adjust when cloning elsewhere or use an env var override in `config.py`.
@@ -24,5 +23,4 @@
 
 ## Working style for Copilot agents
 - Trust these instructions first; search the tree only if something here is incomplete or proves wrong.
-- Prefer running the listed commands in the stated order. If a command fails, check for missing venv activation, missing llama-cpp install, or an incorrect model path before deeper debugging.
-- Keep changes minimal and scoped; there is no CI to auto-catch regressions, so run frontend build/tests when touching UI code and manually exercise backend endpoints when changing API or model logic.
+- Keep changes minimal and scoped; there is no CI to auto-catch regressions.
