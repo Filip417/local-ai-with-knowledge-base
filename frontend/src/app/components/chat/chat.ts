@@ -1,4 +1,4 @@
-import { Component, effect, ElementRef, inject, signal, ViewChild } from '@angular/core';
+import { Component, effect, inject, signal, ViewChild } from '@angular/core';
 import { ChatMessages } from '../chat-messages/chat-messages';
 import { ChatInput } from '../chat-input/chat-input';
 import { Message, Role } from '../../models/message';
@@ -20,12 +20,12 @@ export class Chat {
   messages = signal<Message[]>([]);
   isSending = signal(false);
   isWaitingForFirstResponse = signal(false);
-  @ViewChild('chatContainer') chatContainer?: ElementRef<HTMLElement>;
+  @ViewChild(ChatMessages) chatMessages?: ChatMessages;
 
   constructor() {
     effect(() => {
       this.messages(); // track changes
-      setTimeout(() => this.scrollChatContainerToBottom(), 0);
+      setTimeout(() => this.scrollChatContainerToBottom('auto'), 0);
     });
   }
 
@@ -65,6 +65,7 @@ export class Chat {
           updated[lastIndex] = { ...updated[lastIndex], text: updated[lastIndex].text + chunk };
           return updated;
         });
+        this.scrollChatContainerToBottom();
       });
     } catch (err: any) {
       if (err.name !== 'AbortError') {
@@ -84,6 +85,7 @@ export class Chat {
     } finally {
       this.isSending.set(false);
       this.isWaitingForFirstResponse.set(false);
+      this.scrollChatContainerToBottom();
     }
   }
 
@@ -92,10 +94,7 @@ export class Chat {
     this.messages.set([]);
   }
 
-  private scrollChatContainerToBottom() {
-    this.chatContainer?.nativeElement.scrollTo({
-        top: this.chatContainer.nativeElement.scrollHeight,
-        behavior: 'smooth'
-    });
+  private scrollChatContainerToBottom(behavior: ScrollBehavior = 'smooth') {
+    this.chatMessages?.scrollToBottom(behavior);
   }
 }

@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, ElementRef, Input, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Message } from '../../models/message';
 import { MarkdownModule } from 'ngx-markdown';
@@ -15,4 +15,14 @@ export class ChatMessages {
   @Input() messages: Message[] = [];
   @Input() isSending: boolean = false;
   @Input() isWaitingForFirstResponse: boolean = false;
+
+  @ViewChild('messagesContainer') private messagesContainer?: ElementRef<HTMLElement>;
+
+  scrollToBottom(behavior: ScrollBehavior = 'smooth') {
+    requestAnimationFrame(() => {
+      const el = this.messagesContainer?.nativeElement;
+      if (!el) return;
+      el.scrollTo({ top: el.scrollHeight, behavior });
+    });
+  }
 }
