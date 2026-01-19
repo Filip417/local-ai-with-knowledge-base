@@ -89,9 +89,19 @@ def cut_into_context_window(
     valid_docs = []
     for doc_text in all_docs:
         tokens = count_tokens(doc_text)
-        if current_tokens + tokens < SAFE_LIMIT:
+        remaining_tokens = SAFE_LIMIT - current_tokens
+        
+        if tokens <= remaining_tokens:
+            # Entire document fits
             valid_docs.append(doc_text)
             current_tokens += tokens
+        elif remaining_tokens > 0:
+            # Partial document fits 
+            max_chars = remaining_tokens * 4  # Approximate chars from tokens
+            truncated_doc = doc_text[:max_chars] + "... [truncated]"
+            valid_docs.append(truncated_doc)
+            current_tokens += remaining_tokens
+            break
         else:
             break
     
