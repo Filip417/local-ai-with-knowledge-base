@@ -20,7 +20,7 @@
       </div>
 
       <div *ngIf="!isLoading && !error && content" class="content-wrapper">
-        <pre class="file-content">{{ content }}</pre>
+        <markdown [data]="content"></markdown>
       </div>
     </div>
 

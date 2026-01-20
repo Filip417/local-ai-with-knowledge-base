@@ -78,18 +78,17 @@
   padding: 20px;
 }
 
-.file-content {
+markdown {
   margin: 0;
-  font-family: 'Courier New', monospace;
   font-size: 14px;
-  line-height: 1.5;
   color: var(--color-text);
-  white-space: pre-wrap;
-  word-wrap: break-word;
-  background-color: var(--color-bg);
   padding: 15px;
   border-radius: 4px;
   font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+::ng-deep markdown a {
+  color: var(--color-text-muted);
 }
 
 .loading-state,

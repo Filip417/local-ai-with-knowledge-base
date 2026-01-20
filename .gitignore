@@ -266,3 +266,6 @@ baseline.json
 
 *.gguf
 *.txt
+*.md
+*.pdf
+*.docx

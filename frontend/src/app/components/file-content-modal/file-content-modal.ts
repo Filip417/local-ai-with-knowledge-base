@@ -1,15 +1,16 @@
 import { Component, Input, Output, EventEmitter, OnInit, OnChanges, SimpleChanges, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FileService } from '../../services/file.service';
+import { MarkdownModule } from 'ngx-markdown';
 
 @Component({
   selector: 'app-file-content-modal',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, MarkdownModule],
   templateUrl: './file-content-modal.html',
   styleUrls: ['./file-content-modal.css']
 })
-export class FileContentModal implements OnInit, OnChanges {
+export class FileContentModal implements OnChanges {
   @Input() isOpen = false;
   @Input() filename: string = '';
   @Output() close = new EventEmitter<void>();
@@ -23,14 +24,10 @@ export class FileContentModal implements OnInit, OnChanges {
     private cdr: ChangeDetectorRef
   ) { }
 
-  ngOnInit() {
-    if (this.isOpen && this.filename) {
-      this.loadFileContent();
-    }
-  }
 
   ngOnChanges(changes: SimpleChanges) {
-    if ((changes['isOpen'] || changes['filename']) && this.isOpen && this.filename) {
+    if (this.isOpen && this.filename && 
+        (changes['isOpen']?.currentValue === true || changes['filename']?.currentValue)) {
       this.loadFileContent();
     }
   }
