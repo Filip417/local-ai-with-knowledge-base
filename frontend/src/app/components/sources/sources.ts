@@ -1,4 +1,5 @@
 import { Component, ElementRef, inject, OnInit, signal, ViewChild } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { SourcesList } from '../sources-list/sources-list';
 import { SourcesInput } from '../sources-input/sources-input';
 import { FileModel } from '../../models/file';
@@ -7,7 +8,7 @@ import { SourcesService } from '../../services/sources.service';
 @Component({
   selector: 'app-sources',
   standalone: true,
-  imports: [SourcesList, SourcesInput],
+  imports: [CommonModule, SourcesList, SourcesInput],
   templateUrl: './sources.html',
   styleUrls: ['./sources.css']
 })
@@ -16,6 +17,7 @@ export class Sources implements OnInit {
   
   sources = signal<FileModel[]>([]);
   isUploading = signal(false);
+  uploadMeta = signal<{ count: number; totalBytes: number; names: string[] }>({ count: 0, totalBytes: 0, names: [] });
   @ViewChild('sourcesContainer') sourcesContainer?: ElementRef<HTMLElement>;
 
   async ngOnInit() {
@@ -50,6 +52,8 @@ export class Sources implements OnInit {
 
     if (!uniqueFiles.length) return;
 
+    const totalBytes = uniqueFiles.reduce((sum, f) => sum + (f.size || 0), 0);
+    this.uploadMeta.set({ count: uniqueFiles.length, totalBytes, names: uniqueFiles.map(f => f.name) });
     this.isUploading.set(true);
 
     try {
@@ -90,5 +94,13 @@ export class Sources implements OnInit {
     } catch (error) {
       console.error('Error clearing sources:', error);
     }
+  }
+
+  formatBytes(bytes: number): string {
+    if (!bytes || bytes < 0) return '0 B';
+    const units = ['B', 'KB', 'MB', 'GB', 'TB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(1024));
+    const value = bytes / Math.pow(1024, i);
+    return `${value.toFixed(value >= 100 ? 0 : value >= 10 ? 1 : 2)} ${units[i]}`;
   }
 }

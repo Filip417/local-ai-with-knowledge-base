@@ -2,4 +2,18 @@
   <div class="panel-header">Sources</div>
   <app-sources-list [sources]="sources()" (deleteSource)="deleteFile($event)"></app-sources-list>
   <app-sources-input (upload)="uploadFiles($event)" (clear)="clearSources()"></app-sources-input>
+
+  <div *ngIf="isUploading()" class="upload-overlay" aria-live="polite" aria-label="Uploading and indexing files">
+    <div class="spinner" aria-hidden="true"></div>
+    <div class="upload-summary">
+      <p class="upload-text">
+        Uploading {{ uploadMeta().count }} file{{ uploadMeta().count > 1 ? 's' : '' }}
+        ({{ formatBytes(uploadMeta().totalBytes) }}) and adding to vector database for fast and relevant retrieval...
+      </p>
+      <ul class="file-list" *ngIf="uploadMeta().count > 0">
+        <li *ngFor="let name of uploadMeta().names | slice:0:5">{{ name }}</li>
+      </ul>
+      <p class="more-text" *ngIf="uploadMeta().count > 5">and {{ uploadMeta().count - 5 }} more...</p>
+    </div>
+  </div>
 </div>
