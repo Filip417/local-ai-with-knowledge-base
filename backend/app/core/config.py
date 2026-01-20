@@ -21,4 +21,4 @@ VERBOSE = False
 
 
 # How many results to fetch from vector db
-N_RESULTS = 100
+N_RESULTS = 20
