@@ -8,6 +8,7 @@ from app.models.message import Message
 from fastapi import UploadFile
 from chromadb import QueryResult
 from pypdf import PdfReader
+from docx import Document
 
 data_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "sources"))
 
@@ -103,7 +104,7 @@ def upload_file_to_vector_db(file_path: str, file_extension: str, file_id: Optio
             reader = PdfReader(file_path)
             text_content = ""
             for page in reader.pages:
-                text_content += page.extract_text() + "\n"
+                text_content += page.extract_text() + "\n\n"
             
             if text_content.strip():
                 is_added = add_documents(text_content, file_id=file_id)
@@ -111,6 +112,28 @@ def upload_file_to_vector_db(file_path: str, file_extension: str, file_id: Optio
             return False
         except Exception as e:
             print(f"Error processing PDF: {e}")
+            return False
+    elif file_extension == "docx":
+        try:
+            doc = Document(file_path)
+            text_content = ""
+            for para in doc.paragraphs:
+                if para.text.strip():
+                    text_content += para.text + "\n\n"
+            
+            # Also extract text from tables
+            for table in doc.tables:
+                for row in table.rows:
+                    for cell in row.cells:
+                        if cell.text.strip():
+                            text_content += cell.text + "\n\n"
+            
+            if text_content.strip():
+                is_added = add_documents(text_content, file_id=file_id)
+                return True if is_added else False
+            return False
+        except Exception as e:
+            print(f"Error processing DOCX: {e}")
             return False
     return False
 
@@ -154,6 +177,21 @@ def handle_file_stream(file):
             for page in reader.pages:
                 text = page.extract_text()
                 if text:
-                    yield text + "\n"
+                    yield text + "\n\n"
         except Exception as e:
             yield f"Error reading PDF: {str(e)}"
+    elif file.extension == "docx":
+        try:
+            doc = Document(file.path)
+            for para in doc.paragraphs:
+                if para.text.strip():
+                    yield para.text + "\n\n"
+            
+            # Also yield text from tables
+            for table in doc.tables:
+                for row in table.rows:
+                    for cell in row.cells:
+                        if cell.text.strip():
+                            yield cell.text + "\n\n"
+        except Exception as e:
+            yield f"Error reading DOCX: {str(e)}"

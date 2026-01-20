@@ -20,7 +20,7 @@ async def upload_source_text_file(file: UploadFile = File(...)):
 
     print(f"content type: {file.content_type}")
     # Validate file type extension
-    supported_formats = ["txt", "md", "pdf"]
+    supported_formats = ["txt", "md", "pdf", "docx"]
     file_extension = file.filename.split(".")[-1].lower()
     if file_extension not in supported_formats:
         raise HTTPException(status_code=400,
