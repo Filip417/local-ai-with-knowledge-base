@@ -7,6 +7,7 @@ from app.core.config import VECTOR_DB_COLLECTION_NAME
 from app.models.message import Message
 from fastapi import UploadFile
 from chromadb import QueryResult
+from pypdf import PdfReader
 
 data_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "sources"))
 
@@ -97,6 +98,20 @@ def upload_file_to_vector_db(file_path: str, file_extension: str, file_id: Optio
         except Exception as e:
             print(e)
             return False
+    elif file_extension == "pdf":
+        try:
+            reader = PdfReader(file_path)
+            text_content = ""
+            for page in reader.pages:
+                text_content += page.extract_text() + "\n"
+            
+            if text_content.strip():
+                is_added = add_documents(text_content, file_id=file_id)
+                return True if is_added else False
+            return False
+        except Exception as e:
+            print(f"Error processing PDF: {e}")
+            return False
     return False
 
 
@@ -133,3 +148,12 @@ def handle_file_stream(file):
     if file.extension in ('txt', 'md'):
         with open(file.path, 'r', encoding='utf-8') as f:
             yield from f
+    elif file.extension == "pdf":
+        try:
+            reader = PdfReader(file.path)
+            for page in reader.pages:
+                text = page.extract_text()
+                if text:
+                    yield text + "\n"
+        except Exception as e:
+            yield f"Error reading PDF: {str(e)}"
