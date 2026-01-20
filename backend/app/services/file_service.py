@@ -1,9 +1,10 @@
 from typing import List, Optional
 import os
 import shutil
+import re
 from uuid import UUID
 from app.core.database import chroma_client
-from app.core.config import VECTOR_DB_COLLECTION_NAME
+from app.core.config import VECTOR_DB_COLLECTION_NAME, N_RESULTS
 from app.models.message import Message
 from fastapi import UploadFile
 from chromadb import QueryResult
@@ -24,23 +25,23 @@ def clear_documents_collection():
         return False
 
 
-def add_documents(document_content: str, file_id: Optional[UUID]):
+def add_documents(document_content: str, file_id: Optional[UUID], doc_id: Optional[str] = None):
     """
     Adds text to the vector database with file ID tracking.
-    If file_id is provided, it will be used as the document ID.
+    file_id is always stored in metadata for filtering; doc_id can vary per chunk.
     """
     if not document_content or not file_id:
         return False
-    
-    doc_id = str(file_id)
-    
+
+    resolved_doc_id = doc_id or str(file_id)
+
     collection = chroma_client.get_or_create_collection(name=VECTOR_DB_COLLECTION_NAME)
     collection.add(
-        ids=[doc_id],
+        ids=[resolved_doc_id],
         documents=[document_content],
-        metadatas=[{"file_id": doc_id}]
+        metadatas=[{"file_id": str(file_id)}]
     )
-    return doc_id
+    return resolved_doc_id
 
 
 def get_results_from_vector_db(
@@ -56,7 +57,7 @@ def get_results_from_vector_db(
 
     kwargs = {
         "query_texts": [last_user_message.text],
-        "n_results": 10,
+        "n_results": N_RESULTS,
     }
     file_id_strs = [str(fid) for fid in selected_file_ids]
     kwargs["where"] = {"file_id": {"$in": file_id_strs}}
@@ -94,44 +95,40 @@ def upload_file_to_vector_db(file_path: str, file_extension: str, file_id: Optio
         try:
             with open(file_path, "r", encoding="utf-8", errors="ignore") as f:
                 text_content = f.read()
-            is_added = add_documents(text_content, file_id=file_id)
-            return True if is_added else False
+            paragraphs = [p.strip() for p in re.split(r"\n\s*\n", text_content) if p.strip()]
+            for idx, paragraph in enumerate(paragraphs):
+                add_documents(paragraph, file_id=file_id, doc_id=f"{file_id}-{file_extension}-{idx}")
+            return True
         except Exception as e:
             print(e)
             return False
     elif file_extension == "pdf":
         try:
             reader = PdfReader(file_path)
-            text_content = ""
-            for page in reader.pages:
-                text_content += page.extract_text() + "\n\n"
-            
-            if text_content.strip():
-                is_added = add_documents(text_content, file_id=file_id)
-                return True if is_added else False
-            return False
+            for idx, page in enumerate(reader.pages):
+                add_documents(page.extract_text(), file_id=file_id, doc_id=f"{file_id}-pdf-{idx}")
+            return True
         except Exception as e:
             print(f"Error processing PDF: {e}")
             return False
     elif file_extension == "docx":
         try:
             doc = Document(file_path)
-            text_content = ""
-            for para in doc.paragraphs:
+            for idx, para in enumerate(doc.paragraphs):
                 if para.text.strip():
-                    text_content += para.text + "\n\n"
+                    add_documents(para.text, file_id=file_id, doc_id=f"{file_id}-docx-p-{idx}")
             
             # Also extract text from tables
-            for table in doc.tables:
+            for t_idx, table in enumerate(doc.tables):
+                table_content = ""
                 for row in table.rows:
                     for cell in row.cells:
                         if cell.text.strip():
-                            text_content += cell.text + "\n\n"
+                            table_content += cell.text + "\n\n"
+                if table_content.strip():
+                    add_documents(table_content, file_id=file_id, doc_id=f"{file_id}-docx-t-{t_idx}")
             
-            if text_content.strip():
-                is_added = add_documents(text_content, file_id=file_id)
-                return True if is_added else False
-            return False
+            return True
         except Exception as e:
             print(f"Error processing DOCX: {e}")
             return False

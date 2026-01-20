@@ -18,3 +18,7 @@ Prioritize accuracy, structural clarity and direct response over conversational 
 N_GPU_LAYERS = -1  # All layers for RTX 5070 with 12GB VRAM
 # Verbose output for debugging GPU initialization
 VERBOSE = False
+
+
+# How many results to fetch from vector db
+N_RESULTS = 100

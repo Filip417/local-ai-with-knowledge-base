@@ -7,7 +7,7 @@ from concurrent.futures import ThreadPoolExecutor
 from functools import partial
 from app.services.file_service import get_results_from_vector_db
 from chromadb import QueryResult
-from app.core.config import CONTEXT_LIMIT, MAX_OUTPUT_TOKENS, MODEL_ABSOLUTE_PATH, ROLE_LLM_PROMPT, N_GPU_LAYERS, VERBOSE
+from app.core.config import CONTEXT_LIMIT, MAX_OUTPUT_TOKENS, MODEL_ABSOLUTE_PATH, ROLE_LLM_PROMPT, N_GPU_LAYERS, VERBOSE, N_RESULTS
 from uuid import UUID 
 
 
@@ -115,10 +115,10 @@ def cut_into_context_window(
             break
     
     if valid_docs:
-        context_str = "\n---\n".join(valid_docs)
+        context_str = "\n\n".join(valid_docs)
         final_context.insert(0, {
             "role": "system", 
-            "content": f"Relevant context from database:\n{context_str}"
+            "content": f"{N_RESULTS} The most relevant paragraphs context from database:\n\n{context_str}"
         })
 
     print(f"{final_context=}")
