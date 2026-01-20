@@ -1,4 +1,5 @@
 from typing import Optional, List, Dict
+import os
 from fastapi import UploadFile
 from uuid import UUID
 from app.models.file import File
@@ -6,7 +7,8 @@ from app.services.file_service import (clear_documents_collection,
                                         upload_file_to_vector_db,
                                         save_or_reuse_data_file,
                                         delete_file_from_disk,
-                                        delete_file_from_vector_db)
+                                        delete_file_from_vector_db,
+                                        data_dir)
 class FileRepository:
     """
     In-memory repository for managing File metadata.
@@ -16,6 +18,39 @@ class FileRepository:
     def __init__(self):
         self._files: Dict[UUID, File] = {}  # Store by ID
         self._file_path_index: Dict[str, UUID] = {}  # Map file_path to ID for quick lookup
+        self._load_existing_files()
+
+    def _load_existing_files(self) -> None:
+        supported_content_types = {
+            "txt": "text/plain",
+            "md": "text/markdown",
+            "pdf": "application/pdf",
+            "docx": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        }
+        if not os.path.isdir(data_dir):
+            return
+
+        for name in os.listdir(data_dir):
+            path = os.path.join(data_dir, name)
+            if not os.path.isfile(path):
+                continue
+
+            if "." not in name:
+                continue
+            extension = name.rsplit(".", 1)[-1].lower()
+            if extension not in supported_content_types:
+                continue
+
+            file = File(
+                name=name,
+                path=path,
+                extension=extension,
+                size_bytes=os.path.getsize(path),
+                content_type=supported_content_types[extension],
+            )
+            upload_file_to_vector_db(path, file_extension=extension, file_id=file.id)
+            self._files[file.id] = file
+            self._file_path_index[file.path] = file.id
 
     def create(self, file: File, upload_file : UploadFile, file_extension : str) -> File:
         """Add a new file to the repository."""
