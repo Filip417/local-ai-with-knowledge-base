@@ -88,7 +88,7 @@ def upload_file_to_vector_db(file_path: str, file_extension: str, file_id: Optio
     """
     Load a saved file from disk and push its contents into the vector DB with file ID tracking.
     """
-    if file_extension == "txt":
+    if file_extension in ("txt", "md"):
         try:
             with open(file_path, "r", encoding="utf-8", errors="ignore") as f:
                 text_content = f.read()
@@ -130,6 +130,6 @@ def delete_file_from_vector_db(file_id: UUID):
 
 
 def handle_file_stream(file):
-    if (file.extension == 'txt'):
+    if file.extension in ('txt', 'md'):
         with open(file.path, 'r', encoding='utf-8') as f:
             yield from f
