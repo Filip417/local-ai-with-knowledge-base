@@ -27,3 +27,20 @@
   background: var(--color-surface-hover);
   box-shadow: 0 0 0 2px var(--color-accent); /* subtle focus ring on drag */
 }
+
+.input-text-div {
+  display: flex;
+  flex-direction: column;
+
+}
+
+.input-title {
+  color: var(--color-text);
+  margin: 5px 10px;
+}
+
+.input-description {
+  color: var(--color-text-muted);
+  margin: 5px 10px;
+  font-size: small;
+}
