@@ -137,3 +137,14 @@ svg { width: 18px; height: 18px; display: block; }
   margin: 0;
   font-size: 0.9rem;
 }
+
+markdown p {
+  margin: 0;
+  padding: 0;
+}
+
+ markdown pre {
+  background-color: var(--color-surface);
+  padding: 10px;
+  border-radius: 4px;
+}

@@ -42,18 +42,3 @@
   border-radius: 12px 12px 12px 4px;
   max-width: 70%;
 }
-
-/* chat-messages.css */
-
-/* Remove browser margins from the paragraph tag inside the bubble */
-.bubble ::ng-deep markdown p {
-  margin: 0;
-  padding: 0;
-}
-
-/* If you want to customize code blocks or lists: */
-.bubble ::ng-deep markdown pre {
-  background-color: var(--color-surface);
-  padding: 10px;
-  border-radius: 4px;
-}
