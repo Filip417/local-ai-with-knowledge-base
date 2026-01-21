@@ -12,6 +12,7 @@
   --header-height: 30px;
   --input-height: 90px;
   --spacing: 12px;
+  --panel-inside-height: calc(100vh - var(--header-height) - var(--input-height) - 11 * var(--spacing));
 }
 
 body {
@@ -65,7 +66,7 @@ body {
   scroll-behavior: smooth;
   max-width: var(--chat-width);
   overflow-y: auto;
-  max-height: calc(100vh - var(--header-height) - var(--input-height) - 11 * var(--spacing));
+  height: var(--panel-inside-height);
 }
 
 button {
@@ -125,6 +126,7 @@ svg { width: 18px; height: 18px; display: block; }
   text-align: center;
   color: var(--color-text-muted);
   padding: 20px;
+  height: var(--panel-inside-height);
 }
 
 .empty-state h3 {
