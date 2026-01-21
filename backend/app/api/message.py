@@ -37,10 +37,10 @@ async def get_sessions():
     return {
         "sessions": [
             {
-                "id": "",
-                "title": "",
-                "timestamp": "",
-                "lastMessage": "",
+                "id": session.get("id"),
+                "title": session.get("title"),
+                "timestamp": session.get("timestamp"),
+                "lastMessage": session.get("lastMessage"),
             }
             for session in sessions
         ]
