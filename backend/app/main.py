@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.api.chat import router as chat_router
 from app.api.file import router as file_router
+from app.api.message import router as message_router
 import uvicorn
 from app.core.database import initialize_chroma_client
 
@@ -19,6 +20,8 @@ app.add_middleware(
 # Mount routers
 app.include_router(chat_router, prefix="/api/v1", tags=["chat"])
 app.include_router(file_router, prefix="/api/v1", tags=["file"])
+app.include_router(message_router, prefix="/api/v1", tags=["message"])
+
 
 if __name__ == "__main__":
     # Initialize ChromaDB client and collection

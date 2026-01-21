@@ -6,3 +6,4 @@ from pydantic import BaseModel
 class ChatRequest(BaseModel):
     messages: List[Message]
     selected_file_ids: Optional[List[str]] = None
+    session_id: str

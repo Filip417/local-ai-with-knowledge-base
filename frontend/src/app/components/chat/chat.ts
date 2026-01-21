@@ -39,11 +39,12 @@ export class Chat {
 
     this.isSending.set(true);
     this.isWaitingForFirstResponse.set(true);
-    this.addMessage({ role: Role.User, text, timestamp: new Date().toISOString() });
+    this.addMessage({ session_id: null, role: Role.User, text, timestamp: new Date().toISOString() });
     
     const messagesToSend = this.messages();
     
     const assistantMsg: Message = { 
+      session_id: null,
       role: Role.Assistant, 
       text: '', 
       timestamp: new Date().toISOString() 

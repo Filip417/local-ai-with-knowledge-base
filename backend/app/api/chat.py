@@ -3,7 +3,7 @@ from fastapi.responses import StreamingResponse
 from app.services.chat_service import handle_query_stream
 from uuid import UUID
 from app.models.chat_request import ChatRequest
-
+from app.repositories import get_message_repository
 
 router = APIRouter()
 
@@ -24,6 +24,8 @@ async def chat_endpoint(request: ChatRequest):
         except ValueError:
             raise HTTPException(status_code=400, detail="Invalid file ID format")
 
+    repo = get_message_repository()
+    repo.create_from_chat_request(chat_request=request)
     # StreamingResponse keeps HTTP connection open while chunks are sent.
     return StreamingResponse(
         handle_query_stream(request.messages, selected_file_ids),
