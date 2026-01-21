@@ -1,0 +1,34 @@
+<div
+  class="panel-component history-panel"
+  [class.is-collapsed]="isCollapsed()"
+  [style.width]="panelWidth()"
+  role="region"
+  aria-label="Conversation history"
+>
+  <div class="panel-header history-header">
+    <span class="history-title">History</span>
+    <button
+      type="button"
+      class="collapse-btn"
+      (click)="toggleCollapsed()"
+      [attr.aria-expanded]="!isCollapsed()"
+      aria-label="Toggle history panel"
+    >
+      <span aria-hidden="true" *ngIf="isCollapsed()">&lt;</span>
+      <span aria-hidden="true" *ngIf="!isCollapsed()">&gt;</span>
+    </button>
+  </div>
+
+  <div class="panel-inside history-body" *ngIf="!isCollapsed()">
+    <div class="history-item" *ngFor="let item of historyItems()">
+      <div class="history-item__title">{{ item.title }}</div>
+      <div class="history-item__meta">{{ item.timestamp }}</div>
+      <div class="history-item__snippet">{{ item.lastMessage }}</div>
+    </div>
+
+    <div class="empty-state" *ngIf="!historyItems().length">
+      <h3>No history yet</h3>
+      <p>Conversations will appear here once saved.</p>
+    </div>
+  </div>
+</div>

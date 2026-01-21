@@ -6,7 +6,7 @@
 
 .column-container {
   display: grid;
-  grid-template-columns: 1fr 2fr;
+  grid-template-columns: 1fr 2fr auto;
   gap: 10px;
   padding: 10px;
   background-color: var(--color-surface);
@@ -14,6 +14,7 @@
   min-height: 0;
   grid-auto-rows: minmax(0, 1fr);
   max-height: 100%;
+  align-items: stretch;
 }
 
 .app-header {
