@@ -13,8 +13,13 @@ import { History } from './components/history/history';
 })
 export class App {
   @ViewChild(Chat) chatComponent?: Chat;
+  @ViewChild(History) historyComponent?: History;
 
   onSessionSelected(sessionId: string): void {
     this.chatComponent?.loadSession(sessionId);
+  }
+
+  onChatCleared(clear: boolean): void {
+    this.historyComponent?.loadSessions();
   }
 }

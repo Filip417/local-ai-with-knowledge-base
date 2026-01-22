@@ -1,10 +1,11 @@
-import { Component, effect, inject, signal, ViewChild } from '@angular/core';
+import { Component, effect, inject, output, signal, ViewChild } from '@angular/core';
 import { ChatMessages } from '../chat-messages/chat-messages';
 import { ChatInput } from '../chat-input/chat-input';
 import { Message, Role } from '../../models/message';
 import { ChatService } from '../../services/chat.service';
 import { ApiService } from '../../services/api.service';
 import { SourcesService } from '../../services/sources.service';
+import { History } from '../history/history';
 
 @Component({
   selector: 'app-chat',
@@ -22,6 +23,7 @@ export class Chat {
   isSending = signal(false);
   isWaitingForFirstResponse = signal(false);
   @ViewChild(ChatMessages) chatMessages?: ChatMessages;
+  onChatCleared = output<boolean>();
 
   constructor() {
     effect(() => {
@@ -117,6 +119,7 @@ export class Chat {
     this.messages.set([]);
     this.currentSessionId.set(this.generateSessionId());
     this.chatService.setCurrentSessionId(null);
+    this.onChatCleared.emit(true);
   }
 
   async loadSession(sessionId: string): Promise<void> {

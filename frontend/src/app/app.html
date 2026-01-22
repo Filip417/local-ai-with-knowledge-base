@@ -10,8 +10,8 @@
 
 <div class="column-container">
     <app-sources></app-sources>
-    <app-chat></app-chat>
-  <app-history (sessionSelected)="onSessionSelected($event)"></app-history>
+    <app-chat (onChatCleared)="onChatCleared($event)"></app-chat>
+    <app-history (sessionSelected)="onSessionSelected($event)"></app-history>
 </div>
 
 <router-outlet></router-outlet>
