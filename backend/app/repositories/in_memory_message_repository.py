@@ -77,7 +77,7 @@ class MessageRepository:
         for msg in self._messages.values():
             if not msg.session_id:
                 continue
-            sessions.setdefault((msg.session_id), []).append(msg)
+            sessions.setdefault(msg.session_id, []).append(msg)
 
         def parse_ts(ts: str) -> float:
             """Parse ISO timestamp to a UTC POSIX float seconds.
@@ -107,7 +107,7 @@ class MessageRepository:
             final_last_message = " ".join(last_message_words[:20])[:150]
 
             summaries.append({
-                "id": str(sid),
+                "id": sid,
                 "title": final_title_text,
                 "timestamp": last.timestamp,
                 "lastMessage": final_last_message,

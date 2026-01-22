@@ -6,7 +6,7 @@ from app.core.enums import Role
 
 class Message(BaseModel):
     id: UUID = Field(default_factory=uuid4)
-    session_id: str | None = None
+    session_id: str
     text: str
     role: Role
     timestamp: str # ISO string
