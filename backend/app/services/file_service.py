@@ -4,7 +4,7 @@ import shutil
 import re
 from uuid import UUID
 from app.core.database import chroma_client
-from app.core.config import VECTOR_DB_COLLECTION_NAME, N_RESULTS
+from app.core.config import VECTOR_DB_COLLECTION_NAME, SOURCES_VECTOR_DB_N_RESULTS
 from app.models.message import Message
 from fastapi import UploadFile
 from chromadb import QueryResult
@@ -57,7 +57,7 @@ def get_results_from_vector_db(
 
     kwargs = {
         "query_texts": [last_user_message.text],
-        "n_results": N_RESULTS,
+        "n_results": SOURCES_VECTOR_DB_N_RESULTS,
     }
     file_id_strs = [str(fid) for fid in selected_file_ids]
     kwargs["where"] = {"file_id": {"$in": file_id_strs}}

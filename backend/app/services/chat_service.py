@@ -7,17 +7,17 @@ from concurrent.futures import ThreadPoolExecutor
 from functools import partial
 from app.services.file_service import get_results_from_vector_db
 from chromadb import QueryResult
-from app.core.config import CONTEXT_LIMIT, MAX_OUTPUT_TOKENS, MODEL_ABSOLUTE_PATH, ROLE_LLM_PROMPT, N_GPU_LAYERS, VERBOSE, N_RESULTS
+from app.core.config import CONTEXT_LIMIT, MAX_OUTPUT_TOKENS, MODEL_ABSOLUTE_PATH, ROLE_LLM_PROMPT, N_GPU_LAYERS, LLAMA_VERBOSE, SOURCES_VECTOR_DB_N_RESULTS
 from uuid import UUID 
 
 
 # Initialize with GPU support: n_gpu_la$env:CMAKE_ARGS="-DLLAMA_CUDA=on"; pip install llama-cpp-python --upgrade --force-reinstall --no-cache-diryers offloads layers to GPU
 # -1 offloads all layers; adjust based on your VRAM and model size
 llm = Llama(
-    model_path=MODEL_ABSOLUTE_PATH,
+    model_path=MODEL_ABSOLUTE_PATH, # type: ignore
     n_ctx=CONTEXT_LIMIT,
     n_gpu_layers=N_GPU_LAYERS,  # Enable GPU acceleration
-    verbose=VERBOSE  # Set True for debugging
+    verbose=LLAMA_VERBOSE  # Set True for debugging
 )
 print(f"Library compiled with GPU support: {llama_supports_gpu_offload()}")
 executor = ThreadPoolExecutor(max_workers=1) # 1 thread worker for LLM interactions
@@ -117,7 +117,7 @@ def cut_into_context_window(
         context_str = "\n\n".join(valid_docs)
         final_context.insert(0, {
             "role": "system", 
-            "content": f"{N_RESULTS} The most relevant paragraphs context from database:\n\n{context_str}"
+            "content": f"{SOURCES_VECTOR_DB_N_RESULTS} The most relevant paragraphs context from database:\n\n{context_str}"
         })
 
     print(f"{final_context=}")

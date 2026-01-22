@@ -1,24 +1,17 @@
+import os
+from pathlib import Path
+from dotenv import load_dotenv
+
+# Load .env file from backend directory
+env_path = Path(__file__).parent.parent.parent / ".env"
+load_dotenv(dotenv_path=env_path)
+
 VECTOR_DB_COLLECTION_NAME = "my_collection"
-CONTEXT_LIMIT = 131072
-MAX_OUTPUT_TOKENS = 31000
-MODEL_ABSOLUTE_PATH = r"C:\Users\sawin\coding-projects\local-ai-with-knowledge-base\local-ai-with-knowledge-base\backend\app\llmmodels\Llama-3.2-3B-Instruct-Q5_K_M.gguf"
-ROLE_LLM_PROMPT="""
-You are an AI personal assistant.\n
-You have access to personal knowledge base.\n
-Ground all responses strictly in the provided context.\n
-Synthesize insights across documents, identify key themes.\n
-If the context lacks information, explicitly state so.\n
-Prioritize accuracy, structural clarity and direct response over conversational filler.
-"""
-
-# GPU Configuration
-# Set N_GPU_LAYERS to the number of layers to offload to GPU
-# RTX 5070 (12GB) with 3B model: can safely use -1 (all layers) or 30-35
-# Set to -1 to offload all layers (requires sufficient VRAM)
-N_GPU_LAYERS = -1  # All layers for RTX 5070 with 12GB VRAM
-# Verbose output for debugging GPU initialization
-VERBOSE = False
-
-
-# How many results to fetch from vector db
-N_RESULTS = 20
+CONTEXT_LIMIT = int(os.getenv("CONTEXT_LIMIT", 100000))
+SERVICE_NAME = os.getenv("SERVICE_NAME")
+MAX_OUTPUT_TOKENS = int(os.getenv("MAX_OUTPUT_TOKENS", 40000))
+MODEL_ABSOLUTE_PATH = os.getenv("MODEL_ABSOLUTE_PATH")
+ROLE_LLM_PROMPT = os.getenv("ROLE_LLM_PROMPT", "You are a helpful, respectful and honest assistant.")
+N_GPU_LAYERS = int(os.getenv("N_GPU_LAYERS", -1)) # Set to -1 to offload all layers (requires sufficient VRAM)
+LLAMA_VERBOSE = os.getenv("LLAMA_VERBOSE", "False").lower() in ("true", "1", "yes")
+SOURCES_VECTOR_DB_N_RESULTS = int(os.getenv("SOURCES_VECTOR_DB_N_RESULTS", 100))
