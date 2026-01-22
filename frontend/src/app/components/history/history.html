@@ -19,7 +19,7 @@
     </button>
   </div>
 
-  <div class="panel-inside history-body" *ngIf="!isCollapsed()">
+  <div class="panel-inside history-body" >
     <div 
       class="history-item" 
       *ngFor="let item of historyItems()"
@@ -28,9 +28,9 @@
       tabindex="0"
       [attr.aria-label]="'Load conversation: ' + item.title"
     >
-      <div class="history-item__title">{{ item.title }}</div>
-      <div class="history-item__meta">{{ relativeTime(item.timestamp) }}</div>
-      <div class="history-item__snippet">{{ item.lastMessage }}</div>
+      <div class="history-item__title" *ngIf="!isCollapsed()">{{ item.title }}</div>
+      <div class="history-item__meta" *ngIf="!isCollapsed()">{{ relativeTime(item.timestamp) }}</div>
+      <div class="history-item__snippet" *ngIf="!isCollapsed()">{{ item.lastMessage }}</div>
     </div>
 
     <div class="empty-state" *ngIf="!historyItems().length && !isLoading()">

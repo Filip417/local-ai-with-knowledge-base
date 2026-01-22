@@ -1,6 +1,10 @@
-.history-panel.is-collapsed .history-body,
 .history-panel.is-collapsed .history-title {
   display: none;
+}
+
+.history-panel.is-collapsed .history-body {
+  max-width: 50px;
+  overflow: hidden;
 }
 
 .history-header {
