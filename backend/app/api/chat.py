@@ -6,7 +6,7 @@ from app.models.chat_request import ChatRequest
 from app.repositories import get_message_repository
 from app.models.message import Message
 from app.core.enums import Role
-from datetime import datetime
+from datetime import datetime, timezone
 
 router = APIRouter()
 
@@ -43,7 +43,7 @@ async def chat_endpoint(request: ChatRequest):
                     session_id=request.session_id,
                     text=assistant_text,
                     role=Role.assistant,
-                    timestamp=datetime.now().isoformat()
+                    timestamp=datetime.now(timezone.utc).isoformat()
                 )
                 try:
                     repo.create(assistant_message)
