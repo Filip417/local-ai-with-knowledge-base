@@ -1,19 +1,22 @@
 from typing import Dict, List, Optional
-from uuid import UUID
+from uuid import UUID, uuid4
 from app.models.message import Message
 from app.models.chat_request import ChatRequest
-
+from app.core.enums import Role
 
 class MessageRepository:
     """In-memory CRUD repository for messages keyed by message ID."""
 
     def __init__(self):
-        self._messages: Dict[UUID, Message] = {}
+        self._messages: Dict[Optional[UUID], Message] = {}
 
     def create_from_chat_request(self, chat_request: ChatRequest) -> bool:
         for message in chat_request.messages:
-            if not message.session_id:
-                message_object = Message(session_id=chat_request.session_id,
+            print(f"{message.id=}")
+            if not self.get(message.id) and message.role != Role.assistant:
+                message_object = Message(
+                                        id=message.id,
+                                        session_id=chat_request.session_id,
                                         text=message.text,
                                         role=message.role,
                                         timestamp=message.timestamp)
@@ -26,7 +29,7 @@ class MessageRepository:
         self._messages[message.id] = message
         return message
 
-    def get(self, message_id: UUID) -> Message | None:
+    def get(self, message_id: UUID | None) -> Message | None:
         return self._messages.get(message_id)
 
     def get_all(self) -> List[Message]:
@@ -67,7 +70,7 @@ class MessageRepository:
 
         Sessions are sorted by last message timestamp (descending).
         """
-        from datetime import datetime
+        from datetime import datetime, timezone
 
         # Group messages by session_id
         sessions: Dict[str, List[Message]] = {}
@@ -76,11 +79,21 @@ class MessageRepository:
                 continue
             sessions.setdefault(msg.session_id, []).append(msg)
 
-        def parse_ts(ts: str):
+        def parse_ts(ts: str) -> float:
+            """Parse ISO timestamp to a UTC POSIX float seconds.
+
+            Returns a float timestamp. If parsing fails, returns 0.0.
+            Naive datetimes are treated as UTC.
+            """
             try:
-                return datetime.fromisoformat(ts)
+                dt = datetime.fromisoformat(ts)
+                if dt.tzinfo is None:
+                    dt = dt.replace(tzinfo=timezone.utc)
+                else:
+                    dt = dt.astimezone(timezone.utc)
+                return dt.timestamp()
             except Exception:
-                return None
+                return 0.0
 
         from app.core.enums import Role
         summaries: List[Dict[str, str]] = []
@@ -88,7 +101,7 @@ class MessageRepository:
             # Sort messages by timestamp ascending; fallback to string compare if parse fails
             msgs_sorted = sorted(
                 msgs,
-                key=lambda m: (parse_ts(m.timestamp) or m.timestamp)
+                key=lambda m: parse_ts(m.timestamp)
             )
 
             last = msgs_sorted[-1]
@@ -106,7 +119,7 @@ class MessageRepository:
 
         # Sort by timestamp descending
         summaries.sort(
-            key=lambda s: (parse_ts(s["timestamp"]) or s["timestamp"]),
+            key=lambda s: parse_ts(s["timestamp"]),
             reverse=True,
         )
 

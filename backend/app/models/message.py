@@ -1,4 +1,5 @@
 from uuid import UUID, uuid4
+from typing import Optional
 from pydantic import BaseModel, Field
 from app.core.enums import Role
 

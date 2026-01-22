@@ -4,7 +4,8 @@ export enum Role {
 }
 
 export interface Message {
-  session_id: string | null;
+  id: string | null;
+  session_id: string;
   text: string;
   role: Role;
   timestamp: string; // ISO string

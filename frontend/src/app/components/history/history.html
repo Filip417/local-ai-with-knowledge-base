@@ -20,15 +20,26 @@
   </div>
 
   <div class="panel-inside history-body" *ngIf="!isCollapsed()">
-    <div class="history-item" *ngFor="let item of historyItems()">
+    <div 
+      class="history-item" 
+      *ngFor="let item of historyItems()"
+      (click)="onItemClick(item.id)"
+      role="button"
+      tabindex="0"
+      [attr.aria-label]="'Load conversation: ' + item.title"
+    >
       <div class="history-item__title">{{ item.title }}</div>
       <div class="history-item__meta">{{ item.timestamp }}</div>
       <div class="history-item__snippet">{{ item.lastMessage }}</div>
     </div>
 
-    <div class="empty-state" *ngIf="!historyItems().length">
+    <div class="empty-state" *ngIf="!historyItems().length && !isLoading()">
       <h3>No history yet</h3>
       <p>Conversations will appear here once saved.</p>
+    </div>
+
+    <div class="empty-state" *ngIf="isLoading()">
+      <p>Loading history...</p>
     </div>
   </div>
 </div>

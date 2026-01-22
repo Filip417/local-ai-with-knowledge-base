@@ -9,6 +9,8 @@ export class ApiService {
     chat: `${this.BASE}/chat`,
     file: `${this.BASE}/file`,
     files: `${this.BASE}/files`,
-    fileContent: `${this.BASE}/file-content`
+    fileContent: `${this.BASE}/file-content`,
+    messages: `${this.BASE}/messages`,
+    sessions: `${this.BASE}/sessions`
   };
 }

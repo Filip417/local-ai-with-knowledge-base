@@ -1,7 +1,9 @@
 import { CommonModule } from '@angular/common';
-import { Component, signal } from '@angular/core';
+import { Component, inject, OnInit, output, signal } from '@angular/core';
+import { ChatService } from '../../services/chat.service';
 
 type HistoryItem = {
+  id: string;
   title: string;
   timestamp: string;
   lastMessage: string;
@@ -14,25 +16,40 @@ type HistoryItem = {
   templateUrl: './history.html',
   styleUrls: ['./history.css']
 })
-export class History {
+export class History implements OnInit {
+  private chatService = inject(ChatService);
+  
   isCollapsed = signal(false);
-  historyItems = signal<HistoryItem[]>([
-    {
-      title: 'Release notes draft',
-      timestamp: '2025-01-05 11:44',
-      lastMessage: 'Summarized backend API changes and default model path.'
-    },
-    {
-      title: 'Bug triage',
-      timestamp: '2025-01-08 16:02',
-      lastMessage: 'Narrowed an upload failure to the embedding step.'
-    },
-    {
-      title: 'Dataset Q&A',
-      timestamp: '2025-01-10 09:18',
-      lastMessage: 'Discussed context window sizing for longer chunks.'
+  historyItems = signal<HistoryItem[]>([]);
+  isLoading = signal(false);
+  
+  sessionSelected = output<string>();
+
+  async ngOnInit() {
+    await this.loadSessions();
+  }
+
+  async loadSessions(): Promise<void> {
+    this.isLoading.set(true);
+    try {
+      const sessions = await this.chatService.getSessions();
+      this.historyItems.set(sessions.map(session => ({
+        id: session.id,
+        title: session.title,
+        timestamp: session.timestamp,
+        lastMessage: session.lastMessage
+      })));
+    } catch (error) {
+      console.error('Failed to load sessions:', error);
+      this.historyItems.set([]);
+    } finally {
+      this.isLoading.set(false);
     }
-  ]);
+  }
+
+  onItemClick(sessionId: string): void {
+    this.sessionSelected.emit(sessionId);
+  }
 
   toggleCollapsed(): void {
     this.isCollapsed.update(value => !value);

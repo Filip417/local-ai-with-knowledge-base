@@ -68,8 +68,7 @@ def count_tokens(text: str) -> int:
 def cut_into_context_window(
         formatted_messages : List[Dict[str, str]],
         knowledge_base_the_most_relevant : QueryResult | None,
-        max_tokens: int,
-        number_of_last_messages_to_prioritise : int = 5) -> List[Dict[str, str]]:
+        max_tokens: int) -> List[Dict[str, str]]:
     
     # Reserve space for the response so the model doesn't cut off mid-sentence
     SAFE_LIMIT = CONTEXT_LIMIT - max_tokens
@@ -78,7 +77,7 @@ def cut_into_context_window(
 
     # 1. Extract Mandatory components: 
     # System Prompt, Last User Message and Prioritize Past x Messages
-    mandatory_messages = [ m for m in formatted_messages ][:number_of_last_messages_to_prioritise+2]
+    mandatory_messages = [ m for m in formatted_messages ]
 
     for msg in mandatory_messages:
         tokens = count_tokens(msg["content"])

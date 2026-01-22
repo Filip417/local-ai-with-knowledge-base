@@ -18,7 +18,6 @@ async def upload_source_text_file(file: UploadFile = File(...)):
     if not file or not file.filename:
         raise HTTPException(status_code=400, detail="Missing file or filename.")
 
-    print(f"content type: {file.content_type}")
     # Validate file type extension
     supported_formats = ["txt", "md", "pdf", "docx"]
     file_extension = file.filename.split(".")[-1].lower()
