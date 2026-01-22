@@ -1,7 +1,7 @@
 <header class="app-header">
   <div class="header-content">
     <h1 class="app-title">Local AI Chat</h1>
-    <button class="settings-btn" aria-label="Settings">
+    <button class="settings-btn" aria-label="Settings" (click)="openSettings()">
       ⚙️
     </button>
   </div>
@@ -13,5 +13,10 @@
     <app-chat (onChatCleared)="onChatCleared($event)"></app-chat>
     <app-history (sessionSelected)="onSessionSelected($event)"></app-history>
 </div>
+
+<app-settings-modal 
+  [isOpen]="isSettingsOpen"
+  (close)="closeSettings()">
+</app-settings-modal>
 
 <router-outlet></router-outlet>

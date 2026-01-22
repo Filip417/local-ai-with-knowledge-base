@@ -11,6 +11,8 @@ export class ApiService {
     files: `${this.BASE}/files`,
     fileContent: `${this.BASE}/file-content`,
     messages: `${this.BASE}/messages`,
-    sessions: `${this.BASE}/sessions`
+    sessions: `${this.BASE}/sessions`,
+    settings: `${this.BASE}/settings`,
+    prompt: `${this.BASE}/settings/prompt`
   };
 }

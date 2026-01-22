@@ -7,7 +7,7 @@ from concurrent.futures import ThreadPoolExecutor
 from functools import partial
 from app.services.file_service import get_results_from_vector_db
 from chromadb import QueryResult
-from app.core.config import CONTEXT_LIMIT, MAX_OUTPUT_TOKENS, MODEL_ABSOLUTE_PATH, ROLE_LLM_PROMPT, N_GPU_LAYERS, LLAMA_VERBOSE, SOURCES_VECTOR_DB_N_RESULTS
+from app.core.config import CONTEXT_LIMIT, MAX_OUTPUT_TOKENS, MODEL_ABSOLUTE_PATH, N_GPU_LAYERS, LLAMA_VERBOSE, SOURCES_VECTOR_DB_N_RESULTS, runtime_config
 from uuid import UUID 
 
 
@@ -129,5 +129,5 @@ def get_llm_formatted_messages(messages : List[Message]) -> List[Dict[str, str]]
     for m in messages:
         llm_formatted_messages.append({"role": m.role.value, "content": m.text})
 
-    llm_formatted_messages.append({"role": "system", "content": ROLE_LLM_PROMPT})
+    llm_formatted_messages.append({"role": "system", "content": runtime_config.role_llm_prompt})
     return llm_formatted_messages

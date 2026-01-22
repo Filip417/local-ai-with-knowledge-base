@@ -1,0 +1,62 @@
+<div class="modal-backdrop" *ngIf="isOpen" (click)="onBackdropClick($event)">
+  <div class="modal-container">
+    <div class="modal-header">
+      <h2 class="modal-title">Settings</h2>
+      <button class="delete-btn" (click)="closeModal()" aria-label="Close settings modal">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+    </div>
+
+    <div class="modal-content">
+      <div *ngIf="isLoading" class="loading-state">
+        <p>Loading settings...</p>
+      </div>
+
+      <div *ngIf="error && !isLoading" class="error-state">
+        <p>{{ error }}</p>
+      </div>
+
+      <div *ngIf="!isLoading && !error" class="modal-body settings-body">
+        <div class="settings-grid">
+          <div class="settings-card">
+            <p class="label">Context limit</p>
+            <p class="value">{{ settings?.context_limit }}</p>
+          </div>
+          <div class="settings-card">
+            <p class="label">Max output tokens</p>
+            <p class="value">{{ settings?.max_output_tokens }}</p>
+          </div>
+          <div class="settings-card">
+            <p class="label">Model</p>
+            <p class="value" title="{{ settings?.model }}">{{ settings?.model || 'unknown' }}</p>
+          </div>
+        </div>
+
+        <div class="prompt-editor">
+          <label for="prompt">System prompt</label>
+          <textarea
+            id="prompt"
+            [(ngModel)]="promptDraft"
+            rows="6"
+            placeholder="Update the assistant role prompt"
+          ></textarea>
+          <p class="helper-text">Changes apply immediately to new responses.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <p class="status-text" *ngIf="saveMessage">{{ saveMessage }}</p>
+      <div class="modal-actions">
+        <button (click)="closeModal()">Close</button>
+        <button class="send-btn" [disabled]="isSaving || !promptDraft.trim()" (click)="savePrompt()">
+          <span *ngIf="!isSaving">Save prompt</span>
+          <span *ngIf="isSaving">Saving...</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
