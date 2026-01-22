@@ -269,3 +269,5 @@ baseline.json
 *.md
 *.pdf
 *.docx
+
+*.db

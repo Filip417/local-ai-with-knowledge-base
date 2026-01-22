@@ -44,3 +44,9 @@
   margin: 5px 10px;
   font-size: small;
 }
+
+@media (max-width: 768px) {
+  .input-description {
+    display: none;
+  }
+}
