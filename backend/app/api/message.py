@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Query
+from fastapi import APIRouter, Query, HTTPException
 from app.repositories import get_message_repository
 
 router = APIRouter()
@@ -41,3 +41,16 @@ async def get_sessions():
             for session in sessions
         ]
     }
+
+@router.delete("/sessions")
+async def delete_session(session_id: str = Query(...)):
+    repo = get_message_repository()
+    
+    try:
+        repo.delete_by_session(session_id=session_id)
+        return {
+            "message": f"Messages for session id '{session_id}' deleted successfully.",
+            "file_id": session_id
+        }
+    except:
+        raise HTTPException(status_code=404, detail=f"Messages with session id '{session_id}' not found.")

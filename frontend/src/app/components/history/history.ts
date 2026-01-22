@@ -80,5 +80,16 @@ export class History implements OnInit {
     return `${days} d ago`;
   }
 
-  
+  async deleteSelectedSession(item_id: string) {
+    try {
+      const deleted = await this.chatService.deleteSession(item_id);
+      if (deleted && this.chatService.getCurrentSessionId() === item_id) {
+        this.chatService.setCurrentSessionId(null);
+      }
+    } catch (err) {
+      console.error('Failed to delete session:', err);
+    }
+    await this.loadSessions();
+  }
+
 }

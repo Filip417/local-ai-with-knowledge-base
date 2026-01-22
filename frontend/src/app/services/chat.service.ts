@@ -96,6 +96,17 @@ export class ChatService {
   }
 
   /**
+   * Delete a session and its messages on the backend.
+   * @param sessionId - ID of the session to delete
+   * @returns true if any messages were deleted
+   */
+  async deleteSession(sessionId: string): Promise<boolean> {
+    const url = `${this.apiService.endpoints.sessions}?session_id=${encodeURIComponent(sessionId)}`;
+    const response = await this.http.delete<{ deleted: number }>(url).toPromise();
+    return (response?.deleted ?? 0) > 0;
+  }
+
+  /**
    * Gets the current session ID.
    */
   getCurrentSessionId(): string | null {
