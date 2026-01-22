@@ -89,6 +89,7 @@ export class History implements OnInit {
     } catch (err) {
       console.error('Failed to delete session:', err);
     }
+    this.sessionSelected.emit("None");
     await this.loadSessions();
   }
 
