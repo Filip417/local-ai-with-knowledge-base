@@ -48,7 +48,7 @@
       </button>
     </div>
 
-    <div class="empty-state" *ngIf="!historyItems().length && !isLoading()">
+    <div class="empty-state" *ngIf="!historyItems().length && !isLoading() && !isCollapsed()">
       <h3>No history yet</h3>
       <p>Conversations will appear here once saved.</p>
     </div>
