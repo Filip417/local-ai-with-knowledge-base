@@ -58,4 +58,27 @@ export class History implements OnInit {
   panelWidth(): string {
     return this.isCollapsed() ? '50px' : '20vw';
   }
+
+  relativeTime(timestamp: string): string {
+    if (!timestamp) return '';
+    let ts = timestamp;
+    ts = ts.replace(/(\.\d{3})\d+/, '$1');
+    let date = new Date(ts);
+    if (isNaN(date.getTime())) {
+      date = new Date(ts.replace(/\.\d+/, ''));
+    }
+    if (isNaN(date.getTime())) return timestamp;
+
+    const now = new Date();
+    const diffSec = Math.floor((now.getTime() - date.getTime()) / 1000);
+    if (diffSec < 60) return 'just now';
+    const mins = Math.floor(diffSec / 60);
+    if (mins < 60) return `${mins} min ago`;
+    const hours = Math.floor(mins / 60);
+    if (hours < 24) return `${hours} h ago`;
+    const days = Math.floor(hours / 24);
+    return `${days} d ago`;
+  }
+
+  
 }

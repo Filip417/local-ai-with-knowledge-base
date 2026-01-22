@@ -1,5 +1,5 @@
 from typing import Dict, List, Optional
-from uuid import UUID, uuid4
+from uuid import UUID
 from app.models.message import Message
 from app.models.chat_request import ChatRequest
 from app.core.enums import Role
@@ -95,26 +95,22 @@ class MessageRepository:
             except Exception:
                 return 0.0
 
-        from app.core.enums import Role
+        
         summaries: List[Dict[str, str]] = []
         for sid, msgs in sessions.items():
-            # Sort messages by timestamp ascending; fallback to string compare if parse fails
-            msgs_sorted = sorted(
-                msgs,
-                key=lambda m: parse_ts(m.timestamp)
-            )
-
-            last = msgs_sorted[-1]
-            # Title: first user message text; fallback to first message text
-            first_user = next((m for m in msgs_sorted if m.role == Role.user), None)
-
-            title_text = (first_user.text if first_user else msgs_sorted[0].text)
+            last = msgs[-1]
+            first_user = next((m for m in msgs if m.role == Role.user), None)
+            title_text = (first_user.text if first_user else msgs[0].text)
+            title_text_words = title_text.split(" ")
+            final_title_text = " ".join(title_text_words[:10])[:75]
+            last_message_words = last.text.split(" ")
+            final_last_message = " ".join(last_message_words[:20])[:150]
 
             summaries.append({
                 "id": sid,
-                "title": title_text,
+                "title": final_title_text,
                 "timestamp": last.timestamp,
-                "lastMessage": last.text,
+                "lastMessage": final_last_message,
             })
 
         # Sort by timestamp descending

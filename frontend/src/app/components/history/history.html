@@ -29,7 +29,7 @@
       [attr.aria-label]="'Load conversation: ' + item.title"
     >
       <div class="history-item__title">{{ item.title }}</div>
-      <div class="history-item__meta">{{ item.timestamp }}</div>
+      <div class="history-item__meta">{{ relativeTime(item.timestamp) }}</div>
       <div class="history-item__snippet">{{ item.lastMessage }}</div>
     </div>
 
